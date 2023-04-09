@@ -1,57 +1,41 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace PairProgrammer;
 
 public static class Program
 {
-	public static void Main(string[] args)
+	public static async Task Main(string[] args)
 	{
-		try
+		string apiKey = "your-api-key";
+
+		var chatGptApi = new ChatGptApi(apiKey);
+		var commandExecutor = new CommandExecutor(args[0]);
+
+		while (true)
 		{
-			var workingDir = args[0];
-			var directoryViewer = new DirectoryViewer(workingDir);
+			Console.WriteLine("Enter your message:");
+			string input = Console.ReadLine();
 
-			while (true)
+			var prompt = "As an AI language model, you will help in pair programming for a software project. "
+						 + "You will be given commands in JSON format like `{\"access\": \"filename.txt\"}` to access a file, "
+						 + "or `{\"list\":\"/\"}` to list all files in a directory. "
+						 + "You will use your knowledge to provide useful responses and assistance in software development. "
+						 + "Now, please process the following user input: "
+						 + Environment.NewLine + input;
+			var response = await chatGptApi.GetChatGptResponseAsync(prompt);
+
+			try
 			{
-				var input = Console.ReadLine() ?? string.Empty;
-				var command = JsonConvert.DeserializeObject<Command>(input) ?? throw new NullReferenceException("Input cannot be null or empty.");
-
-				try
-				{
-					ExecuteCommand(directoryViewer, command);
-				}
-				catch (Exception ex)
-				{
-					Console.WriteLine("An error occurred while executing the command: " + ex.Message);
-				}
+				var command = JsonConvert.DeserializeObject<Command>(response) ?? throw new NullReferenceException("Input cannot be null or empty.");
+				string output = commandExecutor.ExecuteCommand(command);
+				Console.WriteLine(output);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("An error occurred while executing the command: " + ex.Message);
 			}
 		}
-		catch (Exception ex)
-		{
-			Console.WriteLine("An error occurred: " + ex.Message);
-		}
-	}
-
-	private static void ExecuteCommand(DirectoryViewer directoryViewer, Command command)
-	{
-		if (command.List != null)
-		{
-			var list = directoryViewer.List(command.List);
-			foreach (var entry in list)
-			{
-				Console.WriteLine(entry);
-			}
-			return;
-		}
-
-		if (command.Access != null)
-		{
-			var access = directoryViewer.Access(command.Access);
-			Console.WriteLine(access);
-			return;
-		}
-
-		throw new NotSupportedException("Command not supported.");
 	}
 }
