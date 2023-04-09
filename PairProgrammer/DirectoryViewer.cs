@@ -11,11 +11,11 @@ public class DirectoryViewer {
 		_root = root;
 	}
 
-	public List<string> List(string path) {
+	public IEnumerable<string> List(string path) {
 		var fullPath = _root + path.TrimStart('/');
 		var directories = Directory.EnumerateDirectories(fullPath).Select(d => $"{d}/");
 		var files = Directory.EnumerateFiles(fullPath);
-		return directories.Concat(files).Select(e => e.Replace(fullPath, string.Empty)).ToList();
+		return directories.Concat(files).Select(e => e.Replace(fullPath, string.Empty));
 	}
 
 	public string Access(string path) {
