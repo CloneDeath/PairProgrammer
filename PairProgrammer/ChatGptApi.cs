@@ -24,7 +24,7 @@ public class ChatGptApi
 			prompt,
 			max_tokens = 100,
 			n = 1,
-			stop = null,
+			stop = new string[] { },
 			temperature = 0.7
 		};
 
@@ -35,8 +35,8 @@ public class ChatGptApi
 		response.EnsureSuccessStatusCode();
 
 		string responseBody = await response.Content.ReadAsStringAsync();
-		var responseObject = JsonConvert.DeserializeObject<dynamic>(responseBody);
-		string chatGptResponse = responseObject.choices[0].text;
+		var responseObject = JsonConvert.DeserializeObject<ChatGptResponse>(responseBody);
+		string chatGptResponse = responseObject.Choices[0].Text;
 
 		return chatGptResponse.Trim();
 	}
