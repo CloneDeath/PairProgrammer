@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using PairProgrammer.GptApi;
 
 namespace PairProgrammer;
 
@@ -13,20 +16,27 @@ public static class Program
 
         var chatGptApi = new ChatGptApi(apiKey);
         var commandExecutor = new CommandExecutor(args[0]);
+        var programmerInterface = new ProgrammerInterface();
+        
+        
+        var input = programmerInterface.GetMessage();
+        var prompt = GetPrompt(input);
 
-        while (true)
-        {
-            Console.WriteLine("Enter your message:");
-            var input = Console.ReadLine() ?? string.Empty;
+        var messages = new List<Message> {
+            new() { Role = Role.System, Content = "You are an AI language model assisting in pair programming." },
+            new() { Role = Role.User, Content = prompt }
+        };
 
-            var prompt = GetPrompt(input);
-            Console.WriteLine();
-            Console.WriteLine(prompt);
-            var response = await chatGptApi.GetChatGptResponseAsync(prompt);
+        while (true) {
+            var response = await chatGptApi.GetChatGptResponseAsync(messages.ToArray());
+            var responseMessage = response.Choices.First().Message;
+            messages.Add(responseMessage);
+            
+            var responseText = responseMessage.Content.Trim();
 
-            try
-            {
-                var command = JsonConvert.DeserializeObject<Command>(response) ?? throw new NullReferenceException("Input cannot be null or empty.");
+            try {
+                var command = JsonConvert.DeserializeObject<Command>(responseText) 
+                              ?? throw new NullReferenceException("Input cannot be null or empty.");
                 var output = commandExecutor.ExecuteCommand(command);
                 Console.WriteLine(output);
             }

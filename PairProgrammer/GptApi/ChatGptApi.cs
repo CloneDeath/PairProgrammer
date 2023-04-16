@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace PairProgrammer;
+namespace PairProgrammer.GptApi;
 
 public class ChatGptApi
 {
@@ -18,17 +18,13 @@ public class ChatGptApi
 		_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
 	}
 
-	public async Task<string> GetChatGptResponseAsync(string prompt)
+	public async Task<ChatGptResponse> GetChatGptResponseAsync(Message[] messages)
 	{
-		var requestBody = new
+		var requestBody = new ChatGptRequest
 		{
-			model = "gpt-3.5-turbo",
-			messages = new[]
-			{
-				new { role = "system", content = "You are an AI language model assisting in pair programming." },
-				new { role = "user", content = prompt }
-			},
-			max_tokens = 1000
+			Model = "gpt-3.5-turbo", 
+			Messages = messages,
+			MaxTokens = 1000
 		};
 
 		var jsonContent = JsonConvert.SerializeObject(requestBody);
@@ -38,10 +34,7 @@ public class ChatGptApi
 		response.EnsureSuccessStatusCode();
 
 		var responseBody = await response.Content.ReadAsStringAsync();
-		var responseObject = JsonConvert.DeserializeObject<ChatGptResponse>(responseBody) 
+		return JsonConvert.DeserializeObject<ChatGptResponse>(responseBody) 
 							 ?? throw new NullReferenceException();
-		var chatGptResponse = responseObject.Choices[0].Text;
-
-		return chatGptResponse.Trim();
 	}
 }
