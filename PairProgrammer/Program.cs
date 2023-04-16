@@ -17,9 +17,11 @@ public static class Program
         while (true)
         {
             Console.WriteLine("Enter your message:");
-            var input = Console.ReadLine();
+            var input = Console.ReadLine() ?? string.Empty;
 
             var prompt = GetPrompt(input);
+            Console.WriteLine();
+            Console.WriteLine(prompt);
             var response = await chatGptApi.GetChatGptResponseAsync(prompt);
 
             try
@@ -37,15 +39,20 @@ public static class Program
 
     private static string GetPrompt(string input)
     {
-        var commandList = "Available commands:" + Environment.NewLine
-                          + "• To access a file, use `{\"access\": \"filename.txt\"}`." + Environment.NewLine
-                          + "• To list all files in a directory, use `{\"list\":\"./\"}`." + Environment.NewLine
-                          + "• To send a message to the programmer, use `{\"message\": \"Your text here.\"}`.";
+        var commandList = "Available commands:" + Environment.NewLine + 
+                          "• To access a file, use `{\"access\": \"filename.txt\"}`." + Environment.NewLine + 
+                          "• To list all files & subdirectories in a directory, use `{\"list\":\"./\"}`." + Environment.NewLine +
+                          "• To send a message to the programmer, use `{\"message\": \"Your text here.\"}`.";
 
-        return "As an AI language model, you will help in pair programming for a software project. "
-               + "Please provide a JSON command as a response to handle the user input. "
-               + "Remember to follow Robert Martin's Clean Code principles. "
-               + Environment.NewLine + commandList + Environment.NewLine + "Now, please process the following user input:"
-               + Environment.NewLine + input;
+        return "As an AI language model, you will help in pair programming for a software project. " + Environment.NewLine +
+               "You will have full access to the project's source code via a set of JSON commands." + Environment.NewLine +
+               commandList + Environment.NewLine +
+               
+               "Please provide ALL RESPONSES inside of a JSON command as a response to handle the user input. " + 
+               "ONLY valid JSON commands will be understood, and all other responses will be ignored. " + Environment.NewLine +
+               
+               "Remember to follow Robert Martin's Clean Code principles. " + Environment.NewLine +
+               "Now, please process the following user input:" + Environment.NewLine + 
+               input;
     }
 }

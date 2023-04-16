@@ -22,14 +22,13 @@ public class ChatGptApi
 	{
 		var requestBody = new
 		{
+			model = "gpt-3.5-turbo",
 			messages = new[]
 			{
 				new { role = "system", content = "You are an AI language model assisting in pair programming." },
 				new { role = "user", content = prompt }
 			},
-			max_tokens = 100,
-			n = 1,
-			temperature = 0.7
+			max_tokens = 1000
 		};
 
 		var jsonContent = JsonConvert.SerializeObject(requestBody);
