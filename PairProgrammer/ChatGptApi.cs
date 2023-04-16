@@ -10,7 +10,7 @@ namespace PairProgrammer;
 public class ChatGptApi
 {
 	private readonly HttpClient _httpClient;
-	private const string ApiUrl = "https://api.openai.com/v1/engines/davinci-codex/completions";
+	private const string _apiUrl = "https://api.openai.com/v1/chat/completions";
 
 	public ChatGptApi(string apiKey)
 	{
@@ -22,21 +22,25 @@ public class ChatGptApi
 	{
 		var requestBody = new
 		{
-			prompt,
+			messages = new[]
+			{
+				new { role = "system", content = "You are an AI language model assisting in pair programming." },
+				new { role = "user", content = prompt }
+			},
 			max_tokens = 100,
 			n = 1,
-			stop = Array.Empty<string>(),
 			temperature = 0.7
 		};
 
 		var jsonContent = JsonConvert.SerializeObject(requestBody);
 		var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-		var response = await _httpClient.PostAsync(ApiUrl, content);
+		var response = await _httpClient.PostAsync(_apiUrl, content);
 		response.EnsureSuccessStatusCode();
 
 		var responseBody = await response.Content.ReadAsStringAsync();
-		var responseObject = JsonConvert.DeserializeObject<ChatGptResponse>(responseBody) ?? throw new NullReferenceException();
+		var responseObject = JsonConvert.DeserializeObject<ChatGptResponse>(responseBody) 
+							 ?? throw new NullReferenceException();
 		var chatGptResponse = responseObject.Choices[0].Text;
 
 		return chatGptResponse.Trim();
