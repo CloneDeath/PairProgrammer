@@ -6,24 +6,39 @@ public class CommandExecutor
 {
 	private readonly DirectoryViewer _directoryViewer;
 
-	public CommandExecutor(string workingDir)
+	public CommandExecutor(string workingDirectory)
 	{
-		_directoryViewer = new DirectoryViewer(workingDir);
+		_directoryViewer = new DirectoryViewer(workingDirectory);
 	}
 
 	public string ExecuteCommand(Command command)
 	{
 		if (command.List != null)
 		{
-			var list = _directoryViewer.List(command.List);
-			return string.Join(Environment.NewLine, list);
+			return List(command.List);
 		}
 
 		if (command.Access != null)
 		{
-			return _directoryViewer.Access(command.Access);
+			return Access(command.Access);
 		}
 
-		throw new NotSupportedException("Command not supported.");
+		if (command.Message != null)
+		{
+			return $"Message from AI: {command.Message}";
+		}
+
+		throw new NotSupportedException("Unsupported command.");
+	}
+
+	private string List(string path)
+	{
+		var entries = _directoryViewer.List(path);
+		return string.Join(Environment.NewLine, entries);
+	}
+
+	private string Access(string path)
+	{
+		return _directoryViewer.Access(path);
 	}
 }
