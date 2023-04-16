@@ -15,6 +15,9 @@ public class CommandExecutor
     }
 
     public string ExecuteCommand(string command) {
+        const string aiPrefix = "[AI] ";
+        command = command.StartsWith(aiPrefix) ? command[aiPrefix.Length..] : command;
+        
         _programmerInterface.LogCommand(command);
         var commands = command.Split('|');
         var output = string.Empty;
@@ -28,10 +31,10 @@ public class CommandExecutor
             output = commandType switch {
                 "ls" => Command_ls(argument, additionalArgument),
                 "cat" => Command_cat(argument),
-                "prompt" => Command_prompt(argument),
+                "prompt" => Command_prompt(),
                 "grep" => Command_grep(output, argument, additionalArgument),
                 "wc" => Command_wc(output, argument),
-                _ => $"Command '{commandType}' not recognized. Please try again."
+                _ => throw new CommandNotRecognizedException(commandType)
             };
         }
 
@@ -47,8 +50,7 @@ public class CommandExecutor
         return _directoryViewer.Access(path);
     }
 
-    private string Command_prompt(string commandMessage) {
-        _programmerInterface.ShowMessage(commandMessage);
+    private string Command_prompt() {
         return _programmerInterface.GetMessage();
     }
 

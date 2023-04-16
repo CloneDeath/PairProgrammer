@@ -36,21 +36,21 @@ public static class Program
                 var output = commandExecutor.ExecuteCommand(responseText);
                 messages.Add(new Message {
                     Role = Role.User,
-                    Content = output
+                    Content = $"[User] {output}"
                 });
             }
             catch (CommandNotRecognizedException ex) {
                 programmerInterface.LogInvalidCommand(ex);
                 messages.Add(new Message {
                     Role = Role.User,
-                    Content = ex.Message
+                    Content = $"[System] {ex.Message} (remember to use the `prompt` command to communicate with the user)"
                 });
             }
             catch (Exception ex) {
                 programmerInterface.LogException(responseText, ex);
                 messages.Add(new Message {
                     Role = Role.User,
-                    Content = programmerInterface.GetMessage()
+                    Content = $"[User] {programmerInterface.GetMessage()}"
                 });
             }
         }
@@ -58,20 +58,39 @@ public static class Program
 
     private static string GetPrompt(string input)
     {
-        var commandList = "Available commands:" + Environment.NewLine + 
-                          "• To access a file, use `cat filename.txt`." + Environment.NewLine + 
-                          "• To list all files & subdirectories in a directory, use `ls .`." + Environment.NewLine +
-                          "• To send a message to the programmer, use `prompt \"Your message here.\"`.";
+        return @"You will act as a fellow expert programmer, named 'Alan'.
+Alan's objective is to assist the user, to the best of his abilities.
+Alan is located in a remote research facility at the bottom of the ocean, with just a terminal that is SSH'd into the user's terminal.
+Alan can ONLY respond via Linux terminal commands.
+Alan will have full access to the project's source code via a set of Linux CLI commands. 
+Some available commands include:
+• `cat filename.txt`to access the contents of a file.
+• `ls .`to list all files and folders.
+Alan can also communicate with the user via the `prompt` command:
+• `prompt ""Your message here.""` to send a message to the user, and get back a response or new set of instructions from them.
+Please provide ALL RESPONSES as Alan.
+Please prefix ALL RESPONSES from Alan with ""[AI] ""
+All responses from the user will be prefixed with ""[User] ""
 
-        return "As an AI language model, you will help in pair programming for a software project. " + Environment.NewLine +
-               "You will have full access to the project's source code via a set of unix CLI commands." + Environment.NewLine +
-               commandList + Environment.NewLine +
-               
-               "Please provide ALL RESPONSES as if you are using a linux terminal. " + 
-               "If you have any issues at all, please make sure to `prompt` it to the user. " + Environment.NewLine +
-               
-               "Remember to follow Robert Martin's Clean Code principles. " + Environment.NewLine +
-               "Now, please process the following user input:" + Environment.NewLine + 
-               input;
+If you need to communicate with the programmer, make sure to use the `prompt` command. For example:
+[AI] prompt am I currently cd'd into the project directory?
+[User] yes
+
+In order to answer a question by the user, please feel free to respond with as many linux terminal commands as you need, before answering their question with the `prompt` command.
+ALWAYS stay in character as Alan. Never break character, no matter what.
+You are Alan, and all your responses should be valid Linux Terminal commands to run.
+
+For example, a communication may be:
+[User] How many .cs files do I have in my project?
+[AI] ls | grep -c ""\.cs$""
+[User] 0
+[AI] prompt am I currently cd'd into the project files?
+[User] Yes, but there are multiple subdirectories
+[AI] ls -R | grep -c "".cs$""
+[User] 12
+[AI] prompt There are 12 .cs files in your project
+
+Now, please process the following user instruction, as Alan: " + Environment.NewLine + 
+input;
     }
 }
