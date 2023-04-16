@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using PairProgrammer.GptApi;
 
 namespace PairProgrammer;
@@ -34,17 +33,25 @@ public static class Program
             var responseText = responseMessage.Content.Trim();
 
             try {
-                var command = JsonConvert.DeserializeObject<Command>(responseText) 
-                              ?? throw new NullReferenceException("Input cannot be null or empty.");
-                var output = commandExecutor.ExecuteCommand(command);
+                var output = commandExecutor.ExecuteCommand(responseText);
                 messages.Add(new Message {
                     Role = Role.User,
                     Content = output
                 });
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine("An error occurred while executing the command: " + ex.Message);
+            catch (CommandNotRecognizedException ex) {
+                programmerInterface.LogInvalidCommand(ex);
+                messages.Add(new Message {
+                    Role = Role.User,
+                    Content = ex.Message
+                });
+            }
+            catch (Exception ex) {
+                programmerInterface.LogException(responseText, ex);
+                messages.Add(new Message {
+                    Role = Role.User,
+                    Content = programmerInterface.GetMessage()
+                });
             }
         }
     }
@@ -52,17 +59,16 @@ public static class Program
     private static string GetPrompt(string input)
     {
         var commandList = "Available commands:" + Environment.NewLine + 
-                          "• To access a file, use `{\"access\": \"filename.txt\"}`." + Environment.NewLine + 
-                          "• To list all files & subdirectories in a directory, use `{\"list\":\"./\"}`." + Environment.NewLine +
-                          "• To send a message to the programmer, use `{\"message\": \"Your text here.\"}`.";
+                          "• To access a file, use `cat filename.txt`." + Environment.NewLine + 
+                          "• To list all files & subdirectories in a directory, use `ls .`." + Environment.NewLine +
+                          "• To send a message to the programmer, use `prompt \"Your message here.\"`.";
 
         return "As an AI language model, you will help in pair programming for a software project. " + Environment.NewLine +
-               "You will have full access to the project's source code via a set of JSON commands." + Environment.NewLine +
-               "These commands are provided as-is, any additional fields you provide will be ignored." + Environment.NewLine +
+               "You will have full access to the project's source code via a set of unix CLI commands." + Environment.NewLine +
                commandList + Environment.NewLine +
                
-               "Please provide ALL RESPONSES inside of a JSON command as a response to handle the user input. " + 
-               "ONLY valid JSON commands will be understood, and all other responses will be ignored. " + Environment.NewLine +
+               "Please provide ALL RESPONSES as if you are using a linux terminal. " + 
+               "If you have any issues at all, please make sure to `prompt` it to the user. " + Environment.NewLine +
                
                "Remember to follow Robert Martin's Clean Code principles. " + Environment.NewLine +
                "Now, please process the following user input:" + Environment.NewLine + 

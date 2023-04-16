@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace PairProgrammer; 
+namespace PairProgrammer;
 
 public class DirectoryViewer {
 	private readonly string _root;
@@ -15,6 +15,13 @@ public class DirectoryViewer {
 		var fullPath = _root + path.TrimStart('/');
 		var directories = Directory.EnumerateDirectories(fullPath).Select(d => $"{d}/");
 		var files = Directory.EnumerateFiles(fullPath);
+		return directories.Concat(files).Select(e => e.Replace(fullPath, string.Empty));
+	}
+
+	public IEnumerable<string> ListRecursive(string path) {
+		var fullPath = _root + path.TrimStart('/');
+		var directories = Directory.EnumerateDirectories(fullPath, "*", SearchOption.AllDirectories).Select(d => $"{d}/");
+		var files = Directory.EnumerateFiles(fullPath, "*.*", SearchOption.AllDirectories);
 		return directories.Concat(files).Select(e => e.Replace(fullPath, string.Empty));
 	}
 

@@ -11,12 +11,17 @@ public class ProgrammerInterface {
 	public virtual void ShowMessage(string aiMessage) {
 		Console.WriteLine($"AI: {aiMessage}");
 	}
-
-	public virtual void LogList(string path) {
-		Console.WriteLine($"AI: `ls {path}`");
+	
+	public virtual void LogCommand(string command) {
+		Console.WriteLine($"AI: `{command}`");
 	}
 
-	public virtual void LogAccess(string filePath) {
-		Console.WriteLine($"AI: `cat {filePath}`");
+	public virtual void LogInvalidCommand(CommandNotRecognizedException ex) {
+		Console.WriteLine($"AI: tried to use invalid command `{ex.CommandType}`");
+	}
+
+	public virtual void LogException(string responseText, Exception ex) {
+		Console.WriteLine($"AI: `{responseText}`");
+		Console.WriteLine($"An error occurred while executing the command: {ex}`.");
 	}
 }
