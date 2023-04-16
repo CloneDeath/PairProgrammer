@@ -5,10 +5,11 @@ namespace PairProgrammer;
 public class CommandExecutor
 {
 	private readonly DirectoryViewer _directoryViewer;
+	private readonly ProgrammerInterface _programmerInterface;
 
-	public CommandExecutor(string workingDirectory)
-	{
+	public CommandExecutor(string workingDirectory, ProgrammerInterface programmerInterface) {
 		_directoryViewer = new DirectoryViewer(workingDirectory);
+		_programmerInterface = programmerInterface;
 	}
 
 	public string ExecuteCommand(Command command)
@@ -23,22 +24,26 @@ public class CommandExecutor
 			return Access(command.Access);
 		}
 
-		if (command.Message != null)
-		{
-			return $"Message from AI: {command.Message}";
+		if (command.Message != null) {
+			return CommandMessage(command.Message);
 		}
 
 		throw new NotSupportedException("Unsupported command.");
 	}
 
-	private string List(string path)
-	{
+	private string List(string path) {
+		_programmerInterface.LogList(path);
 		var entries = _directoryViewer.List(path);
 		return string.Join(Environment.NewLine, entries);
 	}
 
-	private string Access(string path)
-	{
+	private string Access(string path) {
+		_programmerInterface.LogAccess(path);
 		return _directoryViewer.Access(path);
+	}
+
+	private string CommandMessage(string commandMessage) {
+		_programmerInterface.ShowMessage(commandMessage);
+		return _programmerInterface.GetMessage();
 	}
 }

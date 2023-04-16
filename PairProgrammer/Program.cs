@@ -15,10 +15,9 @@ public static class Program
                      ?? throw new InvalidOperationException("The environment variable 'OPENAI_API_KEY' is not set.");
 
         var chatGptApi = new ChatGptApi(apiKey);
-        var commandExecutor = new CommandExecutor(args[0]);
         var programmerInterface = new ProgrammerInterface();
-        
-        
+        var commandExecutor = new CommandExecutor(args[0], programmerInterface);
+
         var input = programmerInterface.GetMessage();
         var prompt = GetPrompt(input);
 
@@ -38,7 +37,10 @@ public static class Program
                 var command = JsonConvert.DeserializeObject<Command>(responseText) 
                               ?? throw new NullReferenceException("Input cannot be null or empty.");
                 var output = commandExecutor.ExecuteCommand(command);
-                Console.WriteLine(output);
+                messages.Add(new Message {
+                    Role = Role.User,
+                    Content = output
+                });
             }
             catch (Exception ex)
             {
@@ -56,6 +58,7 @@ public static class Program
 
         return "As an AI language model, you will help in pair programming for a software project. " + Environment.NewLine +
                "You will have full access to the project's source code via a set of JSON commands." + Environment.NewLine +
+               "These commands are provided as-is, any additional fields you provide will be ignored." + Environment.NewLine +
                commandList + Environment.NewLine +
                
                "Please provide ALL RESPONSES inside of a JSON command as a response to handle the user input. " + 
