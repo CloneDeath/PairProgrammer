@@ -20,6 +20,9 @@
       <Compile Update="DirectoryViewerTests.List.cs">
         <DependentUpon>DirectoryViewerTests.cs</DependentUpon>
       </Compile>
+      <Compile Update="CommandExecutorTests.ExecuteBash.cs">
+        <DependentUpon>CommandExecutorTests.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>

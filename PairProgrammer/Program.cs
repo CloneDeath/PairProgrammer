@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -16,7 +17,7 @@ public static class Program
 
         var chatGptApi = new ChatGptApi(apiKey);
         var programmerInterface = new ProgrammerInterface();
-        var commandExecutor = new CommandExecutor(args[0], programmerInterface);
+        var commandExecutor = new CommandExecutor(args[0], programmerInterface, new FileSystem());
 
         var input = programmerInterface.GetMessage();
         var prompt = GetPrompt(input);

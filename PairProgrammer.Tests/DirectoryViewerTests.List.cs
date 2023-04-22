@@ -15,7 +15,7 @@ public class DirectoryViewerTests_List : DirectoryViewerTests {
 			{"/src/PairProgrammer.sln", new MockFileData("text")},
 			{"/src/PairProgrammer.Tests/DirectoryViewerTests.cs", new MockFileData("text")},
 		});
-		var directoryViewer = new DirectoryViewer(fileSystem, "src");
+		var directoryViewer = new DirectoryViewer("src", fileSystem);
 
 		var files = directoryViewer.List("").ToArray();
 

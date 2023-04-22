@@ -9,28 +9,33 @@ namespace PairProgrammer;
 public class CommandExecutor
 {
     private readonly DirectoryViewer _directoryViewer;
-    private readonly ProgrammerInterface _programmerInterface;
+    private readonly IProgrammerInterface _programmerInterface;
 
-    public CommandExecutor(string workingDirectory, ProgrammerInterface programmerInterface) {
-        _directoryViewer = new DirectoryViewer(new FileSystem(), workingDirectory);
+    public CommandExecutor(string workingDirectory, IProgrammerInterface programmerInterface, IFileSystem fileSystem) {
+        _directoryViewer = new DirectoryViewer(workingDirectory, fileSystem);
         _programmerInterface = programmerInterface;
     }
 
     public string ExecuteCommand(Command command) {
         _programmerInterface.LogCommand(command);
 
-        return !string.IsNullOrEmpty(command.Chat) 
-                   ? ExecuteChat() 
-                   : ExecuteBash(command);
+        if (!string.IsNullOrEmpty(command.Bash)) {
+            var output = ExecuteBash(command.Bash);
+            var response = new { output };
+            return JsonConvert.SerializeObject(response);
+        }
+        else {
+            var chat = ExecuteChat();
+            var response = new { user = chat };
+            return JsonConvert.SerializeObject(response);
+        }
     }
 
     private string ExecuteChat() {
-        var response = new { user = _programmerInterface.GetMessage() };
-        return JsonConvert.SerializeObject(response);
+        return _programmerInterface.GetMessage();
     }
 
-    private string ExecuteBash(Command command) {
-        var bash = command.Bash ?? string.Empty;
+    public string ExecuteBash(string bash) {
         var commands = bash.Split('|', StringSplitOptions.RemoveEmptyEntries);
         var output = string.Empty;
 
@@ -46,13 +51,18 @@ public class CommandExecutor
                 "prompt" => ExecuteChat(),
                 "grep" => Command_grep(output, argument, additionalArgument),
                 "wc" => Command_wc(output, argument),
+                "date" => Command_date(),
                 _ => throw new CommandNotRecognizedException(commandType)
             };
         }
 
-        var response = new { output };
-        return JsonConvert.SerializeObject(response);
+        return output;
     }
+
+    private string Command_date() {
+        return DateTime.Now.ToString("ddd MMM dd hh:mm:ss tt zz yyyy");
+    }
+
 
     private string Command_ls(string flag, string path) {
         var entries = flag == "-R" ? _directoryViewer.ListRecursive(path) : _directoryViewer.List(path);

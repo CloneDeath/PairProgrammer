@@ -7,12 +7,12 @@ using System.Linq;
 namespace PairProgrammer;
 
 public class DirectoryViewer {
-	private readonly IFileSystem _fileSystem;
 	private readonly string _root;
+	private readonly IFileSystem _fileSystem;
 
-	public DirectoryViewer(IFileSystem fileSystem, string root) {
+	public DirectoryViewer(string root, IFileSystem fileSystem) {
+		_root = fileSystem.Path.GetFullPath(root);
 		_fileSystem = fileSystem;
-		_root = _fileSystem.Path.GetFullPath(root);
 	}
 
 	private string GetFullPath(string path) {

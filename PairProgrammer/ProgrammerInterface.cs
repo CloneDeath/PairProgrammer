@@ -1,8 +1,15 @@
 using System;
 
-namespace PairProgrammer; 
+namespace PairProgrammer;
 
-public class ProgrammerInterface {
+public interface IProgrammerInterface {
+	string GetMessage();
+	void LogCommand(Command command);
+	void LogInvalidCommand(CommandNotRecognizedException ex);
+	void LogException(string responseText, Exception ex);
+}
+
+public class ProgrammerInterface : IProgrammerInterface {
 	public virtual string GetMessage() {
 		Console.Write("[User]: ");
 		return Console.ReadLine() ?? string.Empty;
