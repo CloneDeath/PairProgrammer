@@ -8,8 +8,14 @@ public class ProgrammerInterface {
 		return Console.ReadLine() ?? string.Empty;
 	}
 
-	public virtual void LogCommand(string command) {
-		Console.WriteLine($"[AI]: `{command}`");
+	public virtual void LogCommand(Command command) {
+		if (!string.IsNullOrEmpty(command.Chat)) {
+			Console.WriteLine($"[AI]: {command.Chat}");
+		}
+		if (!string.IsNullOrEmpty(command.Bash)) {
+			Console.WriteLine($"[AI]: {command.Comment}");
+			Console.WriteLine($"> {command.Bash}");
+		}
 	}
 
 	public virtual void LogInvalidCommand(CommandNotRecognizedException ex) {

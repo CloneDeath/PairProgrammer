@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using PairProgrammer.GptApi;
 
 namespace PairProgrammer;
@@ -33,7 +34,9 @@ public static class Program
             var responseText = responseMessage.Content.Trim();
 
             try {
-                var output = commandExecutor.ExecuteCommand(responseText);
+                var command = JsonConvert.DeserializeObject<Command>(responseText)
+                              ?? throw new NullReferenceException();
+                var output = commandExecutor.ExecuteCommand(command);
                 messages.Add(new Message {
                     Role = Role.User,
                     Content = $"[User] {output}"

@@ -1,4 +1,5 @@
 using System;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -10,16 +11,14 @@ public class CommandExecutor
     private readonly ProgrammerInterface _programmerInterface;
 
     public CommandExecutor(string workingDirectory, ProgrammerInterface programmerInterface) {
-        _directoryViewer = new DirectoryViewer(workingDirectory);
+        _directoryViewer = new DirectoryViewer(new FileSystem(), workingDirectory);
         _programmerInterface = programmerInterface;
     }
 
-    public string ExecuteCommand(string command) {
-        const string aiPrefix = "[AI] ";
-        command = command.StartsWith(aiPrefix) ? command[aiPrefix.Length..] : command;
-        
+    public string ExecuteCommand(Command command) {
         _programmerInterface.LogCommand(command);
-        var commands = command.Split('|');
+        var bash = command.Bash ?? string.Empty;
+        var commands = bash.Split('|');
         var output = string.Empty;
 
         foreach (var cmd in commands) {
@@ -47,7 +46,12 @@ public class CommandExecutor
     }
 
     private string Command_cat(string path) {
-        return _directoryViewer.Access(path);
+        if (_directoryViewer.IsDirectory(path)) {
+            return $"cat: {path}: Is a directory";
+        }
+        return _directoryViewer.Exists(path) 
+                   ? _directoryViewer.Access(path) 
+                   : $"cat: {path}: No such file or directory";
     }
 
     private string Command_prompt() {
