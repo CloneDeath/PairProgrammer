@@ -2,6 +2,7 @@ using System;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace PairProgrammer;
 
@@ -17,8 +18,20 @@ public class CommandExecutor
 
     public string ExecuteCommand(Command command) {
         _programmerInterface.LogCommand(command);
+
+        return !string.IsNullOrEmpty(command.Chat) 
+                   ? ExecuteChat() 
+                   : ExecuteBash(command);
+    }
+
+    private string ExecuteChat() {
+        var response = new { user = _programmerInterface.GetMessage() };
+        return JsonConvert.SerializeObject(response);
+    }
+
+    private string ExecuteBash(Command command) {
         var bash = command.Bash ?? string.Empty;
-        var commands = bash.Split('|');
+        var commands = bash.Split('|', StringSplitOptions.RemoveEmptyEntries);
         var output = string.Empty;
 
         foreach (var cmd in commands) {
@@ -30,14 +43,15 @@ public class CommandExecutor
             output = commandType switch {
                 "ls" => Command_ls(argument, additionalArgument),
                 "cat" => Command_cat(argument),
-                "prompt" => Command_prompt(),
+                "prompt" => ExecuteChat(),
                 "grep" => Command_grep(output, argument, additionalArgument),
                 "wc" => Command_wc(output, argument),
                 _ => throw new CommandNotRecognizedException(commandType)
             };
         }
 
-        return output;
+        var response = new { output };
+        return JsonConvert.SerializeObject(response);
     }
 
     private string Command_ls(string flag, string path) {
@@ -52,10 +66,6 @@ public class CommandExecutor
         return _directoryViewer.Exists(path) 
                    ? _directoryViewer.Access(path) 
                    : $"cat: {path}: No such file or directory";
-    }
-
-    private string Command_prompt() {
-        return _programmerInterface.GetMessage();
     }
 
     private string Command_grep(string input, string flag, string pattern) {

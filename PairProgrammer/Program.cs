@@ -44,16 +44,23 @@ public static class Program
             }
             catch (CommandNotRecognizedException ex) {
                 programmerInterface.LogInvalidCommand(ex);
+                var exResponse = new {
+                    output = $"Command '{ex.CommandType}' not found." + Environment.NewLine
+                                                                      + "(remember to use the `chat` JSON to communicate with the user)"
+                };
                 messages.Add(new Message {
                     Role = Role.User,
-                    Content = $"[System] {ex.Message} (remember to use the `prompt` command to communicate with the user)"
+                    Content = JsonConvert.SerializeObject(exResponse)
                 });
             }
             catch (Exception ex) {
                 programmerInterface.LogException(responseText, ex);
+                var exResponse = new {
+                    user = programmerInterface.GetMessage()
+                };
                 messages.Add(new Message {
                     Role = Role.User,
-                    Content = $"[User] {programmerInterface.GetMessage()}"
+                    Content = JsonConvert.SerializeObject(exResponse)
                 });
             }
         }
@@ -69,18 +76,24 @@ Rose can use the bash json to run Linux CLI commands on the user's terminal, to 
 Some commands Rose can run include: ls, cat, grep, wc
 
 An example conversation with Rose may be:
-How are you today?
+{""user"": ""How are you today?""}
 {""chat"": ""I am good, how are you?""}
-I'm doing fine. I was wondering, how many .cs files do I have in my project?
+{""user"": ""I'm doing fine. I was wondering, how many .cs files do I have in my project?""}
 {""bash"": ""ls -R | grep -c \"".cs$\"", ""comment"": ""Listing files recursively, and using grep to count the number of .cs files.""}
-12
+{""output"", ""12""}
 {""chat"": ""You have 12 .cs files in your project.""}
-Does that include subdirectories?
+{""chat"": ""Does that include subdirectories?""}
 {""chat"": ""Yes""}
+
+Another example may be:
+{""user"": ""Can you summerize this project?""}
+{""bash"": ""cat README.md"", ""comment"": ""Outputting the contents of the README.md file, which should contain a summary of the project.""}
+{""output"": ""cat: README.md: No such file or directory""}
+{""chat"": ""I'm sorry, it seems that the README.md file doesn't exist in this project.\nIs there anything else I can help you with?""}
 
 Please stay in character as Rose at all times. Always respond as Rose would, using those 2 JSON responses.
 
-Now, please process the following user instruction, as Rose: "
+Now, please process the following user instructions, as Rose: "
                + Environment.NewLine + input;
     }
 }
