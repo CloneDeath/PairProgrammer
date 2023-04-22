@@ -35,41 +35,61 @@ public class CommandExecutor
         return _programmerInterface.GetMessage();
     }
 
-    public string ExecuteBash(string bash) {
+    public string ExecuteBash(string bash)
+    {
         var commands = bash.Split('|', StringSplitOptions.RemoveEmptyEntries);
         var output = string.Empty;
 
         foreach (var cmd in commands) {
-            var splitCommand = cmd.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var splitCommand = Regex.Matches(cmd, @"[\+\w]*([^\s""']+|""([^""]*)""|'([^']*)')")
+                                    .Select(m => m.Value.Trim('\'', '\"'))
+                                    .Where(s => !string.IsNullOrEmpty(s))
+                                    .ToArray();
             var commandType = splitCommand[0].ToLower();
-            var argument = splitCommand.Length > 1 ? splitCommand[1] : string.Empty;
-            var additionalArgument = splitCommand.Length > 2 ? splitCommand[2] : string.Empty;
+            var args = splitCommand.Skip(1).ToArray();
+
 
             output = commandType switch {
-                "ls" => Command_ls(argument, additionalArgument),
-                "cat" => Command_cat(argument),
+                "ls" => Command_ls(args),
+                "cat" => Command_cat(args),
                 "prompt" => ExecuteChat(),
-                "grep" => Command_grep(output, argument, additionalArgument),
-                "wc" => Command_wc(output, argument),
-                "date" => Command_date(),
+                "grep" => Command_grep(output, args),
+                "wc" => Command_wc(output, args),
+                "date" => Command_date(args),
                 _ => throw new CommandNotRecognizedException(commandType)
             };
         }
-
         return output;
     }
+    
+    private string Command_date(string[] args) {
+        if (args.Length == 0) {
+            return DateTime.Now.ToString("ddd MMM dd hh:mm:ss tt zz yyyy");
+        }
+        if (args.Length > 1) {
+            return $"date: extra operand '{args[1]}'";
+        }
 
-    private string Command_date() {
-        return DateTime.Now.ToString("ddd MMM dd hh:mm:ss tt zz yyyy");
+        var csFormat = args[0].Replace("'", "")
+                              .Replace("+", "")
+                              .Replace("%r", "hh:mm:ss tt")
+                              .Replace("%A", "dddd")
+                              .Replace("%B", "MMMM")
+                              .Replace("%d", "dd")
+                              .Replace("%Y", "yyyy");
+        return DateTime.Now.ToString(csFormat);
     }
 
 
-    private string Command_ls(string flag, string path) {
+    private string Command_ls(string[] args) {
+        var flag = args.Length > 0 ? args[0] : string.Empty;
+        var path = args.Length > 1 ? args[1] : string.Empty;
         var entries = flag == "-R" ? _directoryViewer.ListRecursive(path) : _directoryViewer.List(path);
         return string.Join(Environment.NewLine, entries);
     }
 
-    private string Command_cat(string path) {
+    private string Command_cat(string[] args) {
+        var path = args.Length > 0 ? args[0] : string.Empty;
         if (_directoryViewer.IsDirectory(path)) {
             return $"cat: {path}: Is a directory";
         }
@@ -78,7 +98,9 @@ public class CommandExecutor
                    : $"cat: {path}: No such file or directory";
     }
 
-    private string Command_grep(string input, string flag, string pattern) {
+    private string Command_grep(string input, string[] args) {
+        var flag = args.Length > 0 ? args[0] : string.Empty;
+        var pattern = args.Length > 1 ? args[1] : string.Empty;
         if (flag == "-c" && !string.IsNullOrEmpty(pattern)) {
             var regex = new Regex(pattern);
             var count = input.Split(Environment.NewLine).Count(line => regex.IsMatch(line));
@@ -87,7 +109,8 @@ public class CommandExecutor
         return "Invalid usage of 'grep' command. Please try again.";
     }
 
-    private string Command_wc(string input, string flag) {
+    private string Command_wc(string input, string[] args) {
+        var flag = args.Length > 0 ? args[0] : string.Empty;
         if (flag == "-l") {
             var count = input.Split(Environment.NewLine).Length;
             return count.ToString();
