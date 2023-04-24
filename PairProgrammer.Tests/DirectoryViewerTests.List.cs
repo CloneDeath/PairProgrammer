@@ -19,8 +19,21 @@ public class DirectoryViewerTests_List : DirectoryViewerTests {
 
 		var files = directoryViewer.List("").ToArray();
 
-		files.Should().Contain("PairProgrammer");
-		files.Should().Contain("PairProgrammer.sln");
-		files.Should().Contain("PairProgrammer.Tests");
+		files.Should().Contain("/src/PairProgrammer");
+		files.Should().Contain("/src/PairProgrammer.sln");
+		files.Should().Contain("/src/PairProgrammer.Tests");
+	}
+
+	[Test]
+	public void ItShouldNotContainFilesOutsideOfTheSpecifiedDirectory() {
+		IFileSystem fileSystem = new MockFileSystem(new Dictionary<string, MockFileData> {
+			{"/dst/b.txt", new MockFileData("text")},
+			{"/src/a.txt", new MockFileData("text")}
+		});
+		var directoryViewer = new DirectoryViewer("src", fileSystem);
+
+		var files = directoryViewer.List("").ToArray();
+
+		files.Should().NotContain("/src/b.txt");
 	}
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -8,10 +9,12 @@ namespace PairProgrammer;
 
 public class CommandExecutor
 {
+    private readonly string _workingDirectory;
     private readonly DirectoryViewer _directoryViewer;
     private readonly IProgrammerInterface _programmerInterface;
 
     public CommandExecutor(string workingDirectory, IProgrammerInterface programmerInterface, IFileSystem fileSystem) {
+        _workingDirectory = workingDirectory;
         _directoryViewer = new DirectoryViewer(workingDirectory, fileSystem);
         _programmerInterface = programmerInterface;
     }
@@ -99,12 +102,37 @@ public class CommandExecutor
     }
 
     private string Command_grep(string input, string[] args) {
-        var flag = args.Length > 0 ? args[0] : string.Empty;
-        var pattern = args.Length > 1 ? args[1] : string.Empty;
-        if (flag == "-c" && !string.IsNullOrEmpty(pattern)) {
-            var regex = new Regex(pattern);
+        var doCount = args.Contains("-c") || args.Contains("--count");
+        var recursive = args.Contains("-r") || args.Contains("--recursive");
+
+        var nonFlags = args.Where(a => !a.StartsWith("-")).ToArray();
+        if (nonFlags.Length == 0) return "Usage: grep [OPTION]... PATTERNS [FILE]...";
+
+        var pattern = nonFlags[0];
+        if (string.IsNullOrEmpty(pattern)) return "Invalid usage of 'grep' command. Please try again.";
+        var regex = new Regex(pattern);
+
+        var scope = nonFlags.Length > 1 ? nonFlags[1] : string.Empty;
+        
+        if (doCount) {
             var count = input.Split(Environment.NewLine).Count(line => regex.IsMatch(line));
             return count.ToString();
+        }
+        if (recursive) {
+            var results = new List<string>();
+            var files = _directoryViewer.ListRecursive(scope);
+            foreach (var file in files) {
+                var localFile = _directoryViewer.GetLocalPath(file);
+                var fileText = _directoryViewer.Access(file);
+                var fileLines = fileText.Split(Environment.NewLine);
+                foreach (var fileLine in fileLines) {
+                    var matches = regex.Matches(fileLine);
+                    foreach (Match match in matches) {
+                        results.Add($"{localFile}: {fileLine}");
+                    }
+                }
+            }
+            return string.Join(Environment.NewLine, results);
         }
         return "Invalid usage of 'grep' command. Please try again.";
     }
