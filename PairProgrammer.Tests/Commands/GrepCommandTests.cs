@@ -1,12 +1,14 @@
+using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace PairProgrammer.Tests; 
+namespace PairProgrammer.Tests.Commands; 
 
-public class CommandExecutorTests_ExecuteBash_grep : CommandExecutorTests_ExecuteBash {
+[TestFixture]
+public class GrepCommandTests {
 	[Test]
 	public void ItScansRecursivelyForComments() {
 		IFileSystem fileSystem = new MockFileSystem(new Dictionary<string, MockFileData> {
@@ -29,5 +31,20 @@ public class CommandExecutorTests_ExecuteBash_grep : CommandExecutorTests_Execut
 		var output = commandExecutor.ExecuteBash("grep -r");
 
 		output.Should().Be("Usage: grep [OPTION]... PATTERNS [FILE]...");
+	}
+
+	[Test]
+	public void ItShouldBeAbleToGrepTheOutputOfACatCommand() {
+		IFileSystem fileSystem = new MockFileSystem(new Dictionary<string, MockFileData> {
+			{"/src/main.py", new MockFileData(@"def main():
+	print 'hello'
+")},
+			{"/src/library.py", new MockFileData("// do nothing")},
+		});
+		var commandExecutor = new CommandExecutor("src", new MockProgrammerInterface(), fileSystem);
+
+		var output = commandExecutor.ExecuteBash("grep -m 1 -A 5 'def main():'");
+
+		output.Should().Be("def main():" + Environment.NewLine + "	print 'hello'" + Environment.NewLine);
 	}
 }

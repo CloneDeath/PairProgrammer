@@ -23,15 +23,6 @@
       <Compile Update="CommandExecutorTests.ExecuteBash.cs">
         <DependentUpon>CommandExecutorTests.cs</DependentUpon>
       </Compile>
-      <Compile Update="CommandExecutorTests.ExecuteBash.data.cs">
-        <DependentUpon>CommandExecutorTests.ExecuteBash.cs</DependentUpon>
-      </Compile>
-      <Compile Update="CommandExecutorTests.ExecuteBash.cut.cs">
-        <DependentUpon>CommandExecutorTests.ExecuteBash.cs</DependentUpon>
-      </Compile>
-      <Compile Update="CommandExecutorTests.ExecuteBash.grep.cs">
-        <DependentUpon>CommandExecutorTests.ExecuteBash.cs</DependentUpon>
-      </Compile>
     </ItemGroup>
 
     <ItemGroup>

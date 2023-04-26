@@ -3,9 +3,10 @@ using System.IO.Abstractions.TestingHelpers;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace PairProgrammer.Tests; 
+namespace PairProgrammer.Tests.Commands; 
 
-public class CommandExecutorTests_ExecuteBash_date : CommandExecutorTests_ExecuteBash {
+[TestFixture]
+public class DateCommandTests {
 	[Test]
 	public void AbleToExecute_date() {
 		var commandExecutor = new CommandExecutor("src", new MockProgrammerInterface(), new MockFileSystem());
