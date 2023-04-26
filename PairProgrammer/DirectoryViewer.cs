@@ -22,6 +22,11 @@ public class DirectoryViewer {
 		}
 		return fullPath;
 	}
+	
+	public IEnumerable<string> ListFiles(string path) {
+		var fullPath = GetFullPath(path);
+		return _fileSystem.Directory.EnumerateFiles(fullPath);
+	}
 
 	public IEnumerable<string> List(string path) {
 		var fullPath = GetFullPath(path);

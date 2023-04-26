@@ -23,6 +23,18 @@
       <Compile Update="CommandExecutorTests.ExecuteBash.cs">
         <DependentUpon>CommandExecutorTests.cs</DependentUpon>
       </Compile>
+      <Compile Update="DirectoryViewerTests.ListFiles.cs">
+        <DependentUpon>DirectoryViewerTests.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Commands\CatCommandTests.GetFiles.cs">
+        <DependentUpon>CatCommandTests.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Commands\CatCommandTests.Execute.cs">
+        <DependentUpon>CatCommandTests.cs</DependentUpon>
+      </Compile>
+      <Compile Update="DirectoryViewerTests.Access.cs">
+        <DependentUpon>DirectoryViewerTests.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>

@@ -47,16 +47,21 @@ public class CommandExecutor
             var commandType = splitCommand[0].ToLower();
             var args = splitCommand.Skip(1).ToArray();
 
-
-            output = commandType switch {
-                "ls" => new LsCommand(_directoryViewer).Execute(args, output),
-                "cat" => new CatCommand(_directoryViewer).Execute(args, output),
-                "grep" => new GrepCommand(_directoryViewer).Execute(args, output),
-                "wc" => new WcCommand().Execute(args, output),
-                "date" => new DateCommand().Execute(args, output),
-                _ => throw new CommandNotRecognizedException(commandType)
-            };
+            var command = GetCommand(commandType);
+            output = command.Execute(args, output);
         }
         return output;
+    }
+
+    public ICommand GetCommand(string commandType) {
+        var commands = new ICommand[] {
+            new CatCommand(_directoryViewer),
+            new DateCommand(),
+            new GrepCommand(_directoryViewer),
+            new LsCommand(_directoryViewer),
+            new WcCommand()
+        };
+        return commands.FirstOrDefault(c => c.Name == commandType)
+               ?? throw new CommandNotRecognizedException(commandType);
     }
 }

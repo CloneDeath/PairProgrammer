@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+
 namespace PairProgrammer.Commands; 
 
 public class CatCommand : ICommand {
@@ -10,12 +15,27 @@ public class CatCommand : ICommand {
 	public string Name => "cat";
 
 	public string Execute(string[] args, string input) {
-		var path = args.Length > 0 ? args[0] : string.Empty;
-		if (_directoryViewer.IsDirectory(path)) {
-			return $"cat: {path}: Is a directory";
+		var pattern = args.Length > 0 ? args[0] : string.Empty;
+		if (_directoryViewer.IsDirectory(pattern)) {
+			return $"cat: {pattern}: Is a directory";
 		}
-		return _directoryViewer.Exists(path) 
-				   ? _directoryViewer.Access(path) 
-				   : $"cat: {path}: No such file or directory";
+
+		var files = GetFiles(pattern).ToArray();
+		if (!files.Any()) return $"cat: {pattern}: No such file or directory";
+
+		var contents = files.Select(f => _directoryViewer.Access(f));
+		return string.Join(Environment.NewLine, contents);
+	}
+
+	public IEnumerable<string> GetFiles(string pattern) {
+		if (pattern.Contains('/')) throw new NotSupportedException();
+		if (pattern.Contains("**")) throw new NotSupportedException();
+		
+		var files = _directoryViewer.ListFiles(".");
+		var regexPattern = pattern.Replace(".", "\\.")
+								  .Replace("*", ".*")
+								  .Replace("$", "\\$");
+		var regex = new Regex(regexPattern + "$");
+		return files.Where(f => regex.IsMatch(f));
 	}
 }
