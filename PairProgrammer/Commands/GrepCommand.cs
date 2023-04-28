@@ -15,8 +15,9 @@ public class GrepCommand : ICommand {
 	public string Name => "grep";
 
 	public string Execute(string[] args, string input) {
-		var doCount = args.Contains("-c") || args.Contains("--count");
-		var recursive = args.Contains("-r") || args.Contains("--recursive");
+		var chain = new ArgumentChain(args);
+		var doCount = chain.SliceFlag("-c", "--count");
+		var recursive = chain.SliceFlag("-r", "--recursive");
 		var maxCount = args.Contains("-m") || args.Contains("--max-count") ? 0 : 1;
 		var afterContext = args.Contains("-A") || args.Contains("--after-context");
 		var beforeContext = args.Contains("-B") || args.Contains("--before-context");

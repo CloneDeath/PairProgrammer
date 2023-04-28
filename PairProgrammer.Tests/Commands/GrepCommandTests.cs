@@ -4,6 +4,7 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using FluentAssertions;
 using NUnit.Framework;
+using PairProgrammer.Commands;
 
 namespace PairProgrammer.Tests.Commands; 
 
@@ -31,6 +32,16 @@ public class GrepCommandTests {
 		var output = commandExecutor.ExecuteBash("grep -r");
 
 		output.Should().Be("Usage: grep [OPTION]... PATTERNS [FILE]...");
+	}
+
+	[Test]
+	public void ItShouldBeAbleToHandleTheMaxCountArgument() {
+		var input = "hello" + Environment.NewLine + "hello";
+		var grep = new GrepCommand(new DirectoryViewer("src", new MockFileSystem()));
+
+		var output = grep.Execute(new[] { "-m", "1" }, input);
+
+		output.Should().Be("hello");
 	}
 
 	[Test]
