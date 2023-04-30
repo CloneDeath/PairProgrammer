@@ -10,6 +10,8 @@ public class ArgumentChain {
 		_args = args.ToList();
 	}
 
+	public IEnumerable<string> Arguments => _args;
+
 	public bool SliceFlag(params string[] flags) {
 		var result = false;
 		foreach (var flag in flags) {

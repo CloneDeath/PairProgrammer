@@ -18,25 +18,29 @@ public class GrepCommand : ICommand {
 		var chain = new ArgumentChain(args);
 		var doCount = chain.SliceFlag("-c", "--count");
 		var recursive = chain.SliceFlag("-r", "--recursive");
-		var maxCount = args.Contains("-m") || args.Contains("--max-count") ? 0 : 1;
-		var afterContext = args.Contains("-A") || args.Contains("--after-context");
-		var beforeContext = args.Contains("-B") || args.Contains("--before-context");
+		var maxCount = chain.SliceInteger("-m", "--max-count");
+		var afterContext = chain.SliceInteger("-A", "--after-context");
+		var beforeContext = chain.SliceInteger("-B", "--before-context");
 
-		var nonFlags = args.Where(a => !a.StartsWith("-")).ToArray();
-		if (nonFlags.Length == 0) return "Usage: grep [OPTION]... PATTERNS [FILE]...";
+		var remainingArgs = chain.Arguments.ToArray();
+		foreach (var remainingArg in remainingArgs) {
+			if (remainingArg.StartsWith("-")) throw new Exception($"Unrecognized argument {remainingArg}");
+		}
+		if (remainingArgs.Length == 0) return "Usage: grep [OPTION]... PATTERNS [FILE]...";
 
-		var pattern = nonFlags[0];
+		var pattern = remainingArgs[0];
 		if (string.IsNullOrEmpty(pattern)) return "Invalid usage of 'grep' command. Please try again.";
 		var regex = new Regex(pattern);
 
-		var scope = nonFlags.Length > 1 ? nonFlags[1] : string.Empty;
-        
-		if (doCount) {
-			var count = input.Split(Environment.NewLine).Count(line => regex.IsMatch(line));
-			return count.ToString();
-		}
-		if (recursive) {
-			var results = new List<string>();
+		var scope = remainingArgs.Length > 1 ? remainingArgs[1] : null;
+
+		var results = new List<string>();
+		if (scope == null) {
+			var lines = input.Split(Environment.NewLine);
+			foreach (var line in lines) {
+				if (regex.IsMatch(line)) results.Add(line);
+			}
+		} else if (recursive) {
 			var files = _directoryViewer.ListRecursive(scope);
 			foreach (var file in files) {
 				var localFile = _directoryViewer.GetLocalPath(file);
@@ -49,8 +53,12 @@ public class GrepCommand : ICommand {
 					}
 				}
 			}
-			return string.Join(Environment.NewLine, results);
 		}
-		return "Invalid usage of 'grep' command. Please try again.";
+
+		results = maxCount != null ? results.Take((int)maxCount).ToList() : results;
+		if (doCount) return results.Count.ToString();
+		return results.Any() 
+				   ? string.Join(Environment.NewLine, results)
+				   : "Invalid usage of 'grep' command. Please try again.";
 	}
 }

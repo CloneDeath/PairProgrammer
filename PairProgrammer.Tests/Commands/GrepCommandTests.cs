@@ -39,7 +39,7 @@ public class GrepCommandTests {
 		var input = "hello" + Environment.NewLine + "hello";
 		var grep = new GrepCommand(new DirectoryViewer("src", new MockFileSystem()));
 
-		var output = grep.Execute(new[] { "-m", "1" }, input);
+		var output = grep.Execute(new[] { "-m", "1", "hello" }, input);
 
 		output.Should().Be("hello");
 	}
