@@ -18,6 +18,8 @@ public class GrepCommand : ICommand {
 		var doCount = chain.SliceFlag("-c", "--count");
 		var recursive = chain.SliceFlag("-r", "--recursive");
 		var maxCount = chain.SliceInteger("-m", "--max-count");
+		var ignoreCase = chain.SliceFlag("-i", "--ignore-case");
+		var extendedRegExp = chain.SliceFlag("-E", "--extended-regexp");
 		var afterContext = chain.SliceInteger("-A", "--after-context") ?? 0;
 		var beforeContext = chain.SliceInteger("-B", "--before-context") ?? 0;
 
@@ -30,7 +32,8 @@ public class GrepCommand : ICommand {
 		var pattern = remainingArgs[0];
 		if (string.IsNullOrEmpty(pattern)) return "Invalid usage of 'grep' command. Please try again.";
 		pattern = SwapRegexParenthesis(pattern);
-		var regex = new Regex(pattern);
+		var options = ignoreCase ? RegexOptions.IgnoreCase : RegexOptions.None;
+		var regex = new Regex(pattern, options);
 
 		var scope = remainingArgs.Length > 1 ? remainingArgs[1] : null;
 

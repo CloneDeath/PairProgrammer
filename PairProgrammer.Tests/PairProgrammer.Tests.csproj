@@ -53,6 +53,12 @@
       <Compile Update="Commands\Grep\ResultSets\FixedSizeQueue.Tests.Clear.cs">
         <DependentUpon>FixedSizeQueue.Tests.cs</DependentUpon>
       </Compile>
+      <Compile Update="Commands\Grep\GrepCommand.Tests.Execute.IgnoreCase.cs">
+        <DependentUpon>GrepCommand.Tests.Execute.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Commands\Grep\GrepCommand.Tests.Execute.ExtendedRegExp.cs">
+        <DependentUpon>GrepCommand.Tests.Execute.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>
