@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace PairProgrammer.Commands; 
+namespace PairProgrammer.Commands.Grep; 
 
 public class GrepCommand : ICommand {
 	private readonly DirectoryViewer _directoryViewer;
@@ -30,15 +30,16 @@ public class GrepCommand : ICommand {
 
 		var pattern = remainingArgs[0];
 		if (string.IsNullOrEmpty(pattern)) return "Invalid usage of 'grep' command. Please try again.";
+		pattern = SwapRegexParenthesis(pattern);
 		var regex = new Regex(pattern);
 
 		var scope = remainingArgs.Length > 1 ? remainingArgs[1] : null;
 
-		var results = new List<string>();
+		var results = new GrepResultSetCollection(regex, maxCount);
 		if (scope == null) {
 			var lines = input.Split(Environment.NewLine);
 			foreach (var line in lines) {
-				if (regex.IsMatch(line)) results.Add(line);
+				results.Push(line);
 			}
 		} else if (recursive) {
 			var files = _directoryViewer.ListRecursive(scope);
@@ -47,18 +48,22 @@ public class GrepCommand : ICommand {
 				var fileText = _directoryViewer.Access(file);
 				var fileLines = fileText.Split(Environment.NewLine);
 				foreach (var fileLine in fileLines) {
-					var matches = regex.Matches(fileLine);
-					foreach (Match match in matches) {
-						results.Add($"{localFile}: {fileLine}");
-					}
+					results.Push(localFile, fileLine);
 				}
 			}
 		}
 
-		results = maxCount != null ? results.Take((int)maxCount).ToList() : results;
-		if (doCount) return results.Count.ToString();
-		return results.Any() 
-				   ? string.Join(Environment.NewLine, results)
-				   : "Invalid usage of 'grep' command. Please try again.";
+		return doCount ? results.GetCount() : results.GetOutput();
+	}
+
+	public static string SwapRegexParenthesis(string pattern) {
+		return Regex.Replace(pattern, @"\\?[\(\)]", m => ParenthesisSwapEvaluator(m.Value));
+	}
+
+	public static string ParenthesisSwapEvaluator(string value) {
+		if (value.StartsWith("\\")) {
+			return value.EndsWith(")") ? ")" : "(";
+		}
+		return value == "(" ? "\\(" : "\\)";
 	}
 }

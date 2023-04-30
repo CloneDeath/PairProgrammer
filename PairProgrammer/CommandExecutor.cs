@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Newtonsoft.Json;
 using PairProgrammer.Commands;
+using PairProgrammer.Commands.Grep;
 
 namespace PairProgrammer;
 

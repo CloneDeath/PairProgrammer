@@ -4,12 +4,12 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using FluentAssertions;
 using NUnit.Framework;
-using PairProgrammer.Commands;
+using PairProgrammer.Commands.Grep;
 
-namespace PairProgrammer.Tests.Commands; 
+namespace PairProgrammer.Tests.Commands.Grep; 
 
 [TestFixture]
-public class GrepCommandTests {
+public class GrepCommand_Tests_Execute : GrepCommand_Tests {
 	[Test]
 	public void ItScansRecursivelyForComments() {
 		IFileSystem fileSystem = new MockFileSystem(new Dictionary<string, MockFileData> {
@@ -57,5 +57,22 @@ public class GrepCommandTests {
 		var output = commandExecutor.ExecuteBash("cat *.py | grep -m 1 -A 5 'def main():'");
 
 		output.Should().Be("def main():" + Environment.NewLine + "	print 'hello'" + Environment.NewLine);
+	}
+
+	[Test]
+	public void ItShouldBeAbleToHandleAfterContextCorrectly() {
+		var input = string.Join(Environment.NewLine, "apple", "1", 
+			"apple", "1", "2", 
+			"apple", "1", "2", "3", 
+			"apple", "1", "2", "3", "4", "5", "6");
+		var command = new GrepCommand(new DirectoryViewer("src", new MockFileSystem()));
+
+		var output = command.Execute(new[] { "-A", "5", "apple" }, input);
+		
+		var expected = string.Join(Environment.NewLine, "apple", "1", 
+			"apple", "1", "2", 
+			"apple", "1", "2", "3", 
+			"apple", "1", "2", "3", "4", "5");
+		output.Should().Be(expected);
 	}
 }
