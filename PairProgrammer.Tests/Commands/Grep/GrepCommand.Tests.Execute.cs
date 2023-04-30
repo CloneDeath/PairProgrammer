@@ -54,7 +54,7 @@ public class GrepCommand_Tests_Execute : GrepCommand_Tests {
 		});
 		var commandExecutor = new CommandExecutor("src", new MockProgrammerInterface(), fileSystem);
 
-		var output = commandExecutor.ExecuteBash("cat *.py | grep -m 1 -A 5 'def main():'");
+		var output = commandExecutor.ExecuteBash("cat *.py | grep -m 1 -A 2 'def main():'");
 
 		output.Should().Be("def main():" + Environment.NewLine + "	print 'hello'" + Environment.NewLine);
 	}
