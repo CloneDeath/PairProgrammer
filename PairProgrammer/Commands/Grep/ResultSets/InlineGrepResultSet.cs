@@ -10,7 +10,7 @@ public class InlineGrepResultSet : IGrepResultSet {
 	private readonly int? _maxCount;
 	private int _count;
 	private FixedSizeQueue<string> _afterQueue;
-	private bool _needsDumping = false;
+	private bool _needsDumping;
 	private readonly List<string> _results = new();
 
 	public string Context => string.Empty;

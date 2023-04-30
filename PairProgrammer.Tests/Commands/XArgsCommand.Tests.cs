@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
 using FluentAssertions;
 using NUnit.Framework;
-using PairProgrammer.Commands;
 
 namespace PairProgrammer.Tests.Commands; 
 
