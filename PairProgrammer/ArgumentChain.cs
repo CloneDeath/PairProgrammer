@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -21,5 +22,34 @@ public class ArgumentChain {
 		if (!_args.Contains(flag)) return false;
 		_args.Remove(flag);
 		return true;
+	}
+
+	public int? SliceInteger(params string[] arguments) {
+		var value = TrySliceString(arguments, out var x) ? x : null;
+		return value == null ? null : Convert.ToInt32(value);
+	}
+
+	private bool TrySliceString(string[] arguments, out string value) {
+		for (var i = 0; i < _args.Count; i++) {
+			var arg = _args[i];
+
+			foreach (var argument in arguments) {
+				if (!arg.StartsWith(argument)) continue;
+
+				if (arg.StartsWith($"{argument}=")) {
+					value = arg.Replace($"{argument}=", string.Empty);
+					_args.RemoveAt(i);
+					return true;
+				}
+
+				value = _args[i + 1];
+				_args.RemoveAt(i+1);
+				_args.RemoveAt(i);
+				return true;
+			}
+		}
+
+		value = string.Empty;
+		return false;
 	}
 }

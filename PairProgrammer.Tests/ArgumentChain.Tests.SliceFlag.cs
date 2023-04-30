@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace PairProgrammer.Tests; 
 
 [TestFixture]
-public class ArgumentChain_Tests_SliceFlag : ArgumentStack_Tests {
+public class ArgumentChain_Tests_SliceFlag : ArgumentChain_Tests {
 	[Test]
 	public void ItIsAbleToSliceABooleanFlagFromTheArguments() {
 		var args = new[] { "-f", "-m", "5" };

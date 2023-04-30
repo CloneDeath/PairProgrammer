@@ -1,5 +1,5 @@
 namespace PairProgrammer.Tests;
 
-public abstract class ArgumentStack_Tests {
+public abstract class ArgumentChain_Tests {
 	
 }

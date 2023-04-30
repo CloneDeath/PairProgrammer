@@ -38,6 +38,9 @@
       <Compile Update="ArgumentChain.Tests.SliceFlag.cs">
         <DependentUpon>ArgumentChain.Tests.cs</DependentUpon>
       </Compile>
+      <Compile Update="ArgumentChain.Tests.SliceInteger.cs">
+        <DependentUpon>ArgumentChain.Tests.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>
