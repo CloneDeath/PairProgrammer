@@ -75,4 +75,31 @@ public class GrepCommand_Tests_Execute : GrepCommand_Tests {
 			"apple", "1", "2", "3", "4", "5");
 		output.Should().Be(expected);
 	}
+	
+	[Test]
+	public void ItShouldNotPlaceDashesBetweenGapsOfExactlyEqualSize() {
+		var input = string.Join(Environment.NewLine, "apple", "1", "2", 
+			"apple", "1", "2", "3",
+			"apple", "1", "2", "3");
+		var command = new GrepCommand(new DirectoryViewer("src", new MockFileSystem()));
+
+		var output = command.Execute(new[] { "-A", "2", "apple" }, input);
+		
+		var expected = string.Join(Environment.NewLine, "apple", "1", "2",
+			"apple", "1", "2",
+			"--",
+			"apple", "1", "2");
+		output.Should().Be(expected);
+	}
+	
+	[Test]
+	public void AfterContextShouldNotBringInAnyItemsBeforeTheMatch() {
+		var input = string.Join(Environment.NewLine, "1", "apple", "2");
+		var command = new GrepCommand(new DirectoryViewer("src", new MockFileSystem()));
+
+		var output = command.Execute(new[] { "-A", "1", "apple" }, input);
+		
+		var expected = string.Join(Environment.NewLine, "apple", "2");
+		output.Should().Be(expected);
+	}
 }

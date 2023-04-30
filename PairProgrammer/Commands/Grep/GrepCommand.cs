@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -19,8 +18,8 @@ public class GrepCommand : ICommand {
 		var doCount = chain.SliceFlag("-c", "--count");
 		var recursive = chain.SliceFlag("-r", "--recursive");
 		var maxCount = chain.SliceInteger("-m", "--max-count");
-		var afterContext = chain.SliceInteger("-A", "--after-context");
-		var beforeContext = chain.SliceInteger("-B", "--before-context");
+		var afterContext = chain.SliceInteger("-A", "--after-context") ?? 0;
+		var beforeContext = chain.SliceInteger("-B", "--before-context") ?? 0;
 
 		var remainingArgs = chain.Arguments.ToArray();
 		foreach (var remainingArg in remainingArgs) {
@@ -35,7 +34,7 @@ public class GrepCommand : ICommand {
 
 		var scope = remainingArgs.Length > 1 ? remainingArgs[1] : null;
 
-		var results = new GrepResultSetCollection(regex, maxCount);
+		var results = new GrepResultSetCollection(regex, maxCount, afterContext);
 		if (scope == null) {
 			var lines = input.Split(Environment.NewLine);
 			foreach (var line in lines) {

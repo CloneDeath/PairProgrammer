@@ -9,11 +9,13 @@ namespace PairProgrammer.Commands.Grep;
 public class GrepResultSetCollection {
 	private readonly Regex _regex;
 	private readonly int? _maxCount;
+	private readonly int _afterContext;
 	private readonly List<IGrepResultSet> _resultSets = new ();
 
-	public GrepResultSetCollection(Regex regex, int? maxCount) {
+	public GrepResultSetCollection(Regex regex, int? maxCount, int afterContext) {
 		_regex = regex;
 		_maxCount = maxCount;
+		_afterContext = afterContext;
 	}
 
 	public void Push(string line) {
@@ -30,7 +32,7 @@ public class GrepResultSetCollection {
 		if (set != null) return set;
 
 		set = context == string.Empty
-				  ? new InlineGrepResultSet(_regex, _maxCount)
+				  ? new InlineGrepResultSet(_regex, _maxCount, _afterContext)
 				  : new FileGrepResultSet(context, _regex, _maxCount);
 		_resultSets.Add(set);
 		return set;

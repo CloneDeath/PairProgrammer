@@ -41,6 +41,18 @@
       <Compile Update="ArgumentChain.Tests.SliceInteger.cs">
         <DependentUpon>ArgumentChain.Tests.cs</DependentUpon>
       </Compile>
+      <Compile Update="Commands\Grep\ResultSets\FixedSizeQueue.Tests.PushBack.cs">
+        <DependentUpon>FixedSizeQueue.Tests.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Commands\Grep\ResultSets\FixedSizeQueue.Tests.TryPushBack.cs">
+        <DependentUpon>FixedSizeQueue.Tests.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Commands\Grep\ResultSets\FixedSizeQueue.Tests.Any.cs">
+        <DependentUpon>FixedSizeQueue.Tests.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Commands\Grep\ResultSets\FixedSizeQueue.Tests.Clear.cs">
+        <DependentUpon>FixedSizeQueue.Tests.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>
