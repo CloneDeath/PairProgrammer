@@ -27,7 +27,7 @@ public class CatCommand : ICommand {
 	}
 
 	public IEnumerable<string> GetFiles(string pattern) {
-		var files = _directoryViewer.ListFiles(".")
+		var files = _directoryViewer.ListFilesRecursive(".")
 									.Select(f => _directoryViewer.GetLocalPath(f));
 		var regex = GlobToRegex.Convert(pattern);
 		return files.Where(f => regex.IsMatch(f));

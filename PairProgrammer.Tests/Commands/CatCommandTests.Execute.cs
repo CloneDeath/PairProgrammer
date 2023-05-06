@@ -43,4 +43,18 @@ public class CatCommandTests_Execute : CatCommandTests {
 
 		output.Should().Be("hello world");
 	}
+
+	[Test]
+	public void IfUsingAFolderGlobPattern_ThenOnlyFilesInTheSubdirectoryAreReturned() {
+		IFileSystem fileSystem = new MockFileSystem(new Dictionary<string, MockFileData> {
+			{"/src/Program.cs", new MockFileData("a")},
+			{"/src/library.cs", new MockFileData("b")},
+			{"/src/temp/x.cs", new MockFileData("c")}
+		});
+		var command = new CatCommand(new DirectoryViewer("src/", fileSystem));
+
+		var output = command.Execute(new[] { "**/*.cs" }, string.Empty);
+
+		output.Should().Be("c");
+	}
 }
