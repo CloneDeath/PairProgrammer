@@ -59,6 +59,15 @@
       <Compile Update="Commands\Grep\GrepCommand.Tests.Execute.ExtendedRegExp.cs">
         <DependentUpon>GrepCommand.Tests.Execute.cs</DependentUpon>
       </Compile>
+      <Compile Update="ArgumentChain.Tests.SliceString.cs">
+        <DependentUpon>ArgumentChain.Tests.cs</DependentUpon>
+      </Compile>
+      <Compile Update="ArgumentSplitter.Tests.Split.cs">
+        <DependentUpon>ArgumentSplitter.Tests.cs</DependentUpon>
+      </Compile>
+      <Compile Update="GlobToRegex.Tests.Convert.cs">
+        <DependentUpon>GlobToRegex.Tests.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>

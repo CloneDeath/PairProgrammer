@@ -25,7 +25,7 @@ public class CatCommandTests_GetFiles : CatCommandTests {
 		var output = catCommand.GetFiles("*.py").ToArray();
 
 		output.Should().HaveCount(2);
-		output[0].Should().Be("/src/main.py");
-		output[1].Should().Be("/src/library.py");
+		output[0].Should().Be("./main.py");
+		output[1].Should().Be("./library.py");
 	}
 }

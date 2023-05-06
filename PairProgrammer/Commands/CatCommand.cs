@@ -30,12 +30,10 @@ public class CatCommand : ICommand {
 	public IEnumerable<string> GetFiles(string pattern) {
 		if (pattern.Contains('/')) throw new NotSupportedException();
 		if (pattern.Contains("**")) throw new NotSupportedException();
-		
-		var files = _directoryViewer.ListFiles(".");
-		var regexPattern = pattern.Replace(".", "\\.")
-								  .Replace("*", ".*")
-								  .Replace("$", "\\$");
-		var regex = new Regex(regexPattern + "$");
+
+		var files = _directoryViewer.ListFiles(".")
+									.Select(f => _directoryViewer.GetLocalPath(f));
+		var regex = GlobToRegex.Convert(pattern);
 		return files.Where(f => regex.IsMatch(f));
 	}
 }

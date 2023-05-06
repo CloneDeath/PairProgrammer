@@ -60,4 +60,6 @@ public class DirectoryViewer {
 	public string GetLocalPath(string file) {
 		return file.Replace(_root, ".");
 	}
+
+	public string GetFileName(string file) => _fileSystem.Path.GetFileName(file);
 }

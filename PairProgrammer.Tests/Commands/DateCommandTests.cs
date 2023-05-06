@@ -27,8 +27,11 @@ public class DateCommandTests {
 		var monthName = GetShortMonthName(now);
 		var amPm = GetAMorPM(now);
 		var offset = (now - DateTime.UtcNow).TotalHours;
-		output.Should().Be($"{dayOfWeek} {monthName} {now.Day} {now.Hour%12:00}:{now.Minute:00}:{now.Second:00} {amPm} {offset:00} {now.Year}");
+		var hour = GetHour(now);
+		output.Should().Be($"{dayOfWeek} {monthName} {now.Day:00} {hour:00}:{now.Minute:00}:{now.Second:00} {amPm} {offset:00} {now.Year}");
 	}
+
+	private static int GetHour(DateTime now) => now.Hour >= 13 ? now.Hour - 12 : now.Hour;
 
 	private static string GetShortMonthName(DateTime now) {
 		return GetMonthName(now)[..3];
@@ -64,7 +67,8 @@ public class DateCommandTests {
 
 		var now = DateTime.Now;
 		var amPm = GetAMorPM(now);
-		output.Should().Be($"{now.Hour:00}:{now.Minute:00}:{now.Second:00} {amPm}");
+		var hour = GetHour(now);
+		output.Should().Be($"{hour:00}:{now.Minute:00}:{now.Second:00} {amPm}");
 	}
 
 	[Test]
@@ -75,7 +79,8 @@ public class DateCommandTests {
 
 		var now = DateTime.Now;
 		var amPm = GetAMorPM(now);
-		output.Should().Be($"{now.Hour:00}:{now.Minute:00}:{now.Second:00} {amPm}");
+		var hour = GetHour(now);
+		output.Should().Be($"{hour:00}:{now.Minute:00}:{now.Second:00} {amPm}");
 	}
 
 	[Test]

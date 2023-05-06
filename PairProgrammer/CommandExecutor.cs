@@ -9,8 +9,7 @@ using PairProgrammer.Commands.Grep;
 
 namespace PairProgrammer;
 
-public class CommandExecutor
-{
+public class CommandExecutor : ICommandFactory {
     private readonly DirectoryViewer _directoryViewer;
     private readonly IProgrammerInterface _programmerInterface;
 
@@ -41,10 +40,7 @@ public class CommandExecutor
         var output = string.Empty;
 
         foreach (var cmd in commands) {
-            var splitCommand = Regex.Matches(cmd, @"[\+\w]*([^\s""']+|""([^""]*)""|'([^']*)')")
-                                    .Select(m => m.Value.Trim('\'', '\"'))
-                                    .Where(s => !string.IsNullOrEmpty(s))
-                                    .ToArray();
+            var splitCommand = ArgumentSplitter.Split(cmd);
             var commandType = splitCommand[0].ToLower();
             var args = splitCommand.Skip(1).ToArray();
 
@@ -59,8 +55,10 @@ public class CommandExecutor
             new CatCommand(_directoryViewer),
             new DateCommand(),
             new GrepCommand(_directoryViewer),
+            new FindCommand(_directoryViewer),
             new LsCommand(_directoryViewer),
-            new WcCommand()
+            new WcCommand(),
+            new XArgsCommand(this)
         };
         return commands.FirstOrDefault(c => c.Name == commandType)
                ?? throw new CommandNotRecognizedException(commandType);

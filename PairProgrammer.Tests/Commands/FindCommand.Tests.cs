@@ -16,7 +16,7 @@ public class FindCommand_Tests {
 			{ "/src/File2.cs", new MockFileData("txt") },
 			{ "/src/File3.py", new MockFileData("txt") },
 		});
-		var findCommand = new FindCommand();
+		var findCommand = new FindCommand(new DirectoryViewer("src", mockFileSystem));
 
 		var output = findCommand.Execute(new[] { ".", "-name", "*.cs" }, string.Empty);
 

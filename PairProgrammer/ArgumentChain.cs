@@ -31,6 +31,10 @@ public class ArgumentChain {
 		return value == null ? null : Convert.ToInt32(value);
 	}
 
+	public string? SliceString(params string[] arguments) {
+		return TrySliceString(arguments, out var x) ? x : null;
+	}
+
 	private bool TrySliceString(string[] arguments, out string value) {
 		for (var i = 0; i < _args.Count; i++) {
 			var arg = _args[i];
