@@ -1,3 +1,4 @@
+using System;
 using System.IO.Abstractions.TestingHelpers;
 using FluentAssertions;
 using NUnit.Framework;
@@ -9,11 +10,11 @@ namespace PairProgrammer.Tests.Commands.Grep;
 public class GrepCommand_Tests_Execute_ExtendedRegExp {
 	[Test]
 	public void IfUsingExtendedRegExp_ThenParenthesisAreNotSwapped() {
-		var input = "var x = DoThing('hello', 'world') + string.empty;";
+		const string input = "var x = DoThing('hello', 'world'";
 		var command = new GrepCommand(new DirectoryViewer("src", new MockFileSystem()));
 
 		var output = command.Execute(new[] { "--extended-regexp", "DoThing(.*)" }, input);
 
-		output.Should().Be("DoThing('hello', 'world') + string.empty;");
+		output.Should().Be("var x = DoThing('hello', 'world'");
 	}
 }

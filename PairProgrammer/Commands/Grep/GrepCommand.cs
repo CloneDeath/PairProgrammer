@@ -31,7 +31,7 @@ public class GrepCommand : ICommand {
 
 		var pattern = remainingArgs[0];
 		if (string.IsNullOrEmpty(pattern)) return "Invalid usage of 'grep' command. Please try again.";
-		pattern = SwapRegexParenthesis(pattern);
+		if (!extendedRegExp) pattern = SwapRegexParenthesis(pattern);
 		var options = ignoreCase ? RegexOptions.IgnoreCase : RegexOptions.None;
 		var regex = new Regex(pattern, options);
 

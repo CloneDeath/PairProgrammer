@@ -28,9 +28,6 @@ public class CatCommand : ICommand {
 	}
 
 	public IEnumerable<string> GetFiles(string pattern) {
-		if (pattern.Contains('/')) throw new NotSupportedException();
-		if (pattern.Contains("**")) throw new NotSupportedException();
-
 		var files = _directoryViewer.ListFiles(".")
 									.Select(f => _directoryViewer.GetLocalPath(f));
 		var regex = GlobToRegex.Convert(pattern);
