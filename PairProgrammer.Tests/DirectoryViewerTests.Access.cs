@@ -23,4 +23,17 @@ public class DirectoryViewerTests_Access : DirectoryViewerTests {
 
 		output.Should().Be("// do nothing");
 	}
+
+	[Test]
+	public void IfScopeEndsWithASlash_ThenItShouldStillBeAbleToAccessFilesInTheRootOfTheDirectory() {
+		IFileSystem fileSystem = new MockFileSystem(new Dictionary<string, MockFileData> {
+			{"src/main.py", new MockFileData("hello world")},
+			{"src/library.py", new MockFileData("// do nothing")},
+		});
+		var directoryViewer = new DirectoryViewer("src/", fileSystem);
+
+		var output = directoryViewer.Access("library.py");
+
+		output.Should().Be("// do nothing");
+	}
 }

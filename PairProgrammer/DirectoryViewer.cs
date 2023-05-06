@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace PairProgrammer;
 
@@ -11,14 +12,19 @@ public class DirectoryViewer {
 	private readonly IFileSystem _fileSystem;
 
 	public DirectoryViewer(string root, IFileSystem fileSystem) {
-		_root = fileSystem.Path.GetFullPath(root);
+		var sanitizedRoot = fileSystem.Path.GetFullPath(root);
+		if (!sanitizedRoot.EndsWith("/")) sanitizedRoot += "/";
+		_root = sanitizedRoot;
 		_fileSystem = fileSystem;
 	}
 
 	private string GetFullPath(string path) {
+		if (path == ".") return _root;
+		
 		var fullPath = _fileSystem.Path.GetFullPath(_fileSystem.Path.Combine(_root, path));
 		if (!fullPath.StartsWith(_root)) {
-			throw new UnauthorizedAccessException("Access outside of the restricted directory is not allowed.");
+			throw new UnauthorizedAccessException("Access outside of the restricted directory is not allowed. "
+			+ $"Tried to access: '{fullPath}', outside of: '{_root}'.");
 		}
 		return fullPath;
 	}
@@ -58,7 +64,8 @@ public class DirectoryViewer {
 	}
 
 	public string GetLocalPath(string file) {
-		return file.Replace(_root, ".");
+		var regex = new Regex("^" + Regex.Escape(_root));
+		return regex.Replace(file, "./");
 	}
 
 	public string GetFileName(string file) => _fileSystem.Path.GetFileName(file);

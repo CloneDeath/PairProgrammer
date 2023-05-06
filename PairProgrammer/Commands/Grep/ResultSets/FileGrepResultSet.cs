@@ -26,11 +26,11 @@ public class FileGrepResultSet : IGrepResultSet {
 	}
 
 	public string GetOutput() {
-		var lines = _results.Select(l => $"{Context}: {l}");
+		var lines = _results.Select(l => $"{Context}:{l}");
 		return string.Join(Environment.NewLine, lines);
 	}
 
 	public string GetCount() {
-		return $"{Context}: {_results.Count}";
+		return $"{Context}:{_results.Count}";
 	}
 }

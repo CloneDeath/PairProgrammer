@@ -102,4 +102,18 @@ public class GrepCommand_Tests_Execute : GrepCommand_Tests {
 		var expected = string.Join(Environment.NewLine, "apple", "2");
 		output.Should().Be(expected);
 	}
+
+	[Test]
+	public void ItIsAbleToGetMain() {
+		var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData> {
+			{"MySite.sln", new MockFileData("dummy text")},
+			{"MyProgram/Program.cs", new MockFileData("    public static async Task Main(string[] args)")}
+		});
+		var command = new GrepCommand(new DirectoryViewer(".", fileSystem));
+		var args = ArgumentSplitter.Split("-r \"static .* Main\" */*.cs");
+
+		var output = command.Execute(args, string.Empty);
+
+		output.Should().Be("./MyProgram/Program.cs:    public static async Task Main(string[] args)");
+	}
 }

@@ -21,4 +21,18 @@ public class DirectoryViewerTests_ListFiles : DirectoryViewerTests {
 		files.Should().HaveCount(1);
 		files.Should().NotContain("/src/b.txt");
 	}
+
+	[Test]
+	public void IfTheRootEndsInASlash_ItCanListFilesInTheRootOfTheRepo() {
+		IFileSystem fileSystem = new MockFileSystem(new Dictionary<string, MockFileData> {
+			{"/src/tmp/b.txt", new MockFileData("text")},
+			{"/src/a.txt", new MockFileData("text")}
+		});
+		var directoryViewer = new DirectoryViewer("src/", fileSystem);
+
+		var files = directoryViewer.ListFiles(".").ToArray();
+
+		files.Should().HaveCount(1);
+		files.Should().Contain("/src/a.txt");
+	}
 }

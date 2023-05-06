@@ -33,8 +33,7 @@ public class CommandExecutor : ICommandFactory {
         }
     }
 
-    public string ExecuteBash(string bash)
-    {
+    public string ExecuteBash(string bash) {
         var commands = bash.Split('|', StringSplitOptions.RemoveEmptyEntries);
         var output = string.Empty;
 

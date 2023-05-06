@@ -4,6 +4,7 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using FluentAssertions;
 using NUnit.Framework;
+using PairProgrammer.Commands;
 
 namespace PairProgrammer.Tests.Commands; 
 
@@ -28,5 +29,18 @@ public class CatCommandTests_Execute : CatCommandTests {
 		outputLines[1].Should().Be("	print 'hello'");
 		outputLines[2].Should().Be("");
 		outputLines[3].Should().Be("// do nothing");
+	}
+
+	[Test]
+	public void AbleToCatAFileInTheRootOfTheFileSystem() {
+		IFileSystem fileSystem = new MockFileSystem(new Dictionary<string, MockFileData> {
+			{"/src/Program.cs", new MockFileData("hello world")},
+			{"/src/library.py", new MockFileData("// do nothing")}
+		});
+		var command = new CatCommand(new DirectoryViewer("src/", fileSystem));
+
+		var output = command.Execute(new[] { "Program.cs" }, string.Empty);
+
+		output.Should().Be("hello world");
 	}
 }

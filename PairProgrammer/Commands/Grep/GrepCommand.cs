@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -47,6 +48,7 @@ public class GrepCommand : ICommand {
 			var files = _directoryViewer.ListRecursive(scope);
 			foreach (var file in files) {
 				var localFile = _directoryViewer.GetLocalPath(file);
+				
 				var fileText = _directoryViewer.Access(file);
 				var fileLines = fileText.Split(Environment.NewLine);
 				foreach (var fileLine in fileLines) {
@@ -57,6 +59,39 @@ public class GrepCommand : ICommand {
 
 		return doCount ? results.GetCount() : results.GetOutput();
 	}
+
+	public IEnumerable<string> GetFiles(string scope, bool recursive) {
+		var fileRegex = GlobToRegex.Convert(scope);
+		var files = new List<string>();
+
+		if (recursive) {
+			var allFiles = _directoryViewer.ListRecursive(".");
+			foreach (var file in allFiles) {
+				var localFile = _directoryViewer.GetLocalPath(file);
+				if (fileRegex.IsMatch(localFile)) {
+					files.Add(file);
+				}
+			}
+		} else {
+			if (_directoryViewer.IsDirectory(scope)) {
+				var directoryFiles = _directoryViewer.List(scope);
+				foreach (var file in directoryFiles) {
+					files.Add(file);
+				}
+			} else {
+				var directoryFiles = _directoryViewer.List(scope);
+				foreach (var file in directoryFiles) {
+					var localFile = _directoryViewer.GetLocalPath(file);
+					if (fileRegex.IsMatch(localFile)) {
+						files.Add(file);
+					}
+				}
+			}
+		}
+
+		return files;
+	}
+
 
 	public static string SwapRegexParenthesis(string pattern) {
 		return Regex.Replace(pattern, @"\\?[\(\)]", m => ParenthesisSwapEvaluator(m.Value));

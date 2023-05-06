@@ -54,10 +54,10 @@
         <DependentUpon>FixedSizeQueue.Tests.cs</DependentUpon>
       </Compile>
       <Compile Update="Commands\Grep\GrepCommand.Tests.Execute.IgnoreCase.cs">
-        <DependentUpon>GrepCommand.Tests.Execute.cs</DependentUpon>
+        <DependentUpon>GrepCommand.Tests.cs</DependentUpon>
       </Compile>
       <Compile Update="Commands\Grep\GrepCommand.Tests.Execute.ExtendedRegExp.cs">
-        <DependentUpon>GrepCommand.Tests.Execute.cs</DependentUpon>
+        <DependentUpon>GrepCommand.Tests.cs</DependentUpon>
       </Compile>
       <Compile Update="ArgumentChain.Tests.SliceString.cs">
         <DependentUpon>ArgumentChain.Tests.cs</DependentUpon>
@@ -67,6 +67,18 @@
       </Compile>
       <Compile Update="GlobToRegex.Tests.Convert.cs">
         <DependentUpon>GlobToRegex.Tests.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Commands\Grep\GrepCommand.Tests.Execute.cs">
+        <DependentUpon>GrepCommand.Tests.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Commands\Grep\GrepCommand.Tests.ParenthesisSwapEvaluator.cs">
+        <DependentUpon>GrepCommand.Tests.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Commands\Grep\GrepCommand.Tests.SwapRegexParenthesis.cs">
+        <DependentUpon>GrepCommand.Tests.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Commands\Grep\GrepCommand.Tests.GetFiles.cs">
+        <DependentUpon>GrepCommand.Tests.cs</DependentUpon>
       </Compile>
     </ItemGroup>
 
