@@ -21,7 +21,7 @@ public class GrepCommand_Tests_Execute : GrepCommand_Tests {
 
 		var output = commandExecutor.ExecuteBash("grep -r \"//.*Summary:\" .");
 
-		output.Should().Be("./PairProgrammer/Command.cs: // Summary: it does a thing");
+		output.Should().Be("./PairProgrammer/Command.cs:// Summary: it does a thing");
 	}
 
 	[Test]

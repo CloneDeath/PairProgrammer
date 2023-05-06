@@ -41,6 +41,11 @@ public class DirectoryViewer {
 		return directories.Concat(files);
 	}
 
+	public IEnumerable<string> ListFilesRecursive(string path) {
+		var fullPath = GetFullPath(path);
+		return _fileSystem.Directory.EnumerateFiles(fullPath, "*.*", SearchOption.AllDirectories);
+	}
+
 	public IEnumerable<string> ListRecursive(string path) {
 		var fullPath = GetFullPath(path);
 		var directories = _fileSystem.Directory.EnumerateDirectories(fullPath, "*", SearchOption.AllDirectories).Select(d => $"{d}/");
@@ -69,4 +74,10 @@ public class DirectoryViewer {
 	}
 
 	public string GetFileName(string file) => _fileSystem.Path.GetFileName(file);
+	public string? GetDirectoryName(string path) => _fileSystem.Path.GetDirectoryName(path);
+
+	public bool IsFile(string filePath) {
+		var path = GetFullPath(filePath);
+		return _fileSystem.File.Exists(path);
+	}
 }

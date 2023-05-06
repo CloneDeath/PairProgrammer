@@ -21,9 +21,9 @@ public class GrepCommand_Tests_GetFiles : GrepCommand_Tests {
 		var result = command.GetFiles(".", true).ToArray();
 
 		result.Should().HaveCount(3);
-		result.Should().Contain("src/a.txt");
-		result.Should().Contain("src/s/b.txt");
-		result.Should().Contain("src/s/s/c.txt");
+		result.Should().Contain("/src/a.txt");
+		result.Should().Contain("/src/s/b.txt");
+		result.Should().Contain("/src/s/s/c.txt");
 	}
 
 	[Test]
@@ -37,7 +37,7 @@ public class GrepCommand_Tests_GetFiles : GrepCommand_Tests {
 		var result = command.GetFiles("a.txt", false).ToArray();
 
 		result.Should().HaveCount(1);
-		result.Should().Contain("src/a.txt");
+		result.Should().Contain("a.txt");
 	}
 
 	[Test]
@@ -52,12 +52,12 @@ public class GrepCommand_Tests_GetFiles : GrepCommand_Tests {
 		var result = command.GetFiles("*.txt", false).ToArray();
 
 		result.Should().HaveCount(2);
-		result.Should().Contain("src/a.txt");
-		result.Should().Contain("src/b.txt");
+		result.Should().Contain("/src/a.txt");
+		result.Should().Contain("/src/b.txt");
 	}
 	
 	[Test]
-	public void IfTheScopeIsWildcard_AndRecursiveIsTrue_ThenAllMatchingFilesInAllDirectoriesAreReturned() {
+	public void IfTheScopeIsWildcard_AndRecursiveIsTrue_ThenRecursiveIsIgnored_AndOnlyLocalFilesAreReturned() {
 		var filesystem = new MockFileSystem(new Dictionary<string, MockFileData> {
 			{ "src/a.txt", new MockFileData("") },
 			{ "src/b.txt", new MockFileData("") },
@@ -68,11 +68,8 @@ public class GrepCommand_Tests_GetFiles : GrepCommand_Tests {
 
 		var result = command.GetFiles("*.txt", true).ToArray();
 
-		result.Should().HaveCount(3);
-		result.Should().Contain("src/a.txt");
-		result.Should().Contain("src/b.txt");
-		result.Should().Contain("src/s/c.txt");
+		result.Should().HaveCount(2);
+		result.Should().Contain("/src/a.txt");
+		result.Should().Contain("/src/b.txt");
 	}
-
-
 }

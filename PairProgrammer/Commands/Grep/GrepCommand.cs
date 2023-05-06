@@ -44,8 +44,8 @@ public class GrepCommand : ICommand {
 			foreach (var line in lines) {
 				results.Push(line);
 			}
-		} else if (recursive) {
-			var files = _directoryViewer.ListRecursive(scope);
+		} else {
+			var files = GetFiles(scope, recursive);
 			foreach (var file in files) {
 				var localFile = _directoryViewer.GetLocalPath(file);
 				
@@ -60,39 +60,25 @@ public class GrepCommand : ICommand {
 		return doCount ? results.GetCount() : results.GetOutput();
 	}
 
-	public IEnumerable<string> GetFiles(string scope, bool recursive) {
-		var fileRegex = GlobToRegex.Convert(scope);
-		var files = new List<string>();
-
-		if (recursive) {
-			var allFiles = _directoryViewer.ListRecursive(".");
-			foreach (var file in allFiles) {
-				var localFile = _directoryViewer.GetLocalPath(file);
-				if (fileRegex.IsMatch(localFile)) {
-					files.Add(file);
-				}
+	public IEnumerable<string> GetFiles(string? scope, bool recursive) {
+		if (scope == null) {
+			if (recursive) {
+				return _directoryViewer.ListFilesRecursive(".");
 			}
-		} else {
-			if (_directoryViewer.IsDirectory(scope)) {
-				var directoryFiles = _directoryViewer.List(scope);
-				foreach (var file in directoryFiles) {
-					files.Add(file);
-				}
-			} else {
-				var directoryFiles = _directoryViewer.List(scope);
-				foreach (var file in directoryFiles) {
-					var localFile = _directoryViewer.GetLocalPath(file);
-					if (fileRegex.IsMatch(localFile)) {
-						files.Add(file);
-					}
-				}
-			}
+			throw new NotSupportedException();
+		}
+		if (_directoryViewer.IsFile(scope)) {
+			return new[]{scope};
+		}
+		if (_directoryViewer.IsDirectory(scope)) {
+			return _directoryViewer.ListFilesRecursive(scope);
 		}
 
-		return files;
+		var fileRegex = GlobToRegex.Convert(scope);
+		var allFiles = _directoryViewer.ListFilesRecursive(".");
+		return allFiles.Where(f => fileRegex.IsMatch(_directoryViewer.GetLocalPath(f)));
 	}
-
-
+	
 	public static string SwapRegexParenthesis(string pattern) {
 		return Regex.Replace(pattern, @"\\?[\(\)]", m => ParenthesisSwapEvaluator(m.Value));
 	}
