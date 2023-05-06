@@ -1,3 +1,4 @@
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace PairProgrammer.Tests; 
@@ -10,5 +11,7 @@ public class ArgumentChain_Tests_SliceString : ArgumentChain_Tests {
 		var chain = new ArgumentChain(args);
 
 		var result = chain.SliceString("-name");
+
+		result.Should().BeEquivalentTo("*.cs");
 	}
 }

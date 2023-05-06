@@ -1,7 +1,6 @@
 using System;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using Newtonsoft.Json;
 using PairProgrammer.Commands;
