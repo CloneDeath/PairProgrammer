@@ -33,4 +33,9 @@ public class ProgrammerInterface : IProgrammerInterface {
 		Console.WriteLine($"[AI]: `{responseText}`");
 		Console.WriteLine($"An error occurred while executing the command: {ex}`.");
 	}
+
+	public virtual void LogTooManyRequestsError(int attempt, int retries, TimeSpan backoff) {
+		var seconds = backoff.TotalSeconds;
+		Console.WriteLine($"Loading (too many requests, retrying in {seconds} seconds)... {attempt}/{retries} retries left...");
+	}
 }
