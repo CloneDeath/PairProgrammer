@@ -17,7 +17,7 @@ public class GrepCommand : ICommand {
 	public string Execute(string[] args, string input) {
 		var chain = new ArgumentChain(args);
 		var doCount = chain.SliceFlag("-c", "--count");
-		var recursive = chain.SliceFlag("-r", "--recursive");
+		var recursive = chain.SliceFlag("-r", "--recursive", "-R", "--dereference-recursive");
 		var maxCount = chain.SliceInteger("-m", "--max-count");
 		var ignoreCase = chain.SliceFlag("-i", "--ignore-case");
 		var extendedRegExp = chain.SliceFlag("-E", "--extended-regexp");
