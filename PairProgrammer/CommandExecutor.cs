@@ -1,4 +1,3 @@
-using System;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
@@ -34,7 +33,7 @@ public class CommandExecutor : ICommandFactory {
     }
 
     public string ExecuteBash(string bash) {
-        var commands = bash.Split('|', StringSplitOptions.RemoveEmptyEntries);
+        var commands = CommandSplitter.Split(bash);
         var output = string.Empty;
 
         foreach (var cmd in commands) {
