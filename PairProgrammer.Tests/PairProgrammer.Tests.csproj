@@ -80,6 +80,9 @@
       <Compile Update="Commands\Grep\GrepCommand.Tests.GetFiles.cs">
         <DependentUpon>GrepCommand.Tests.cs</DependentUpon>
       </Compile>
+      <Compile Update="Commands\Grep\GrepCommand.Tests.Execute.Include.cs">
+        <DependentUpon>GrepCommand.Tests.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>

@@ -44,6 +44,10 @@ public class ArgumentChain {
 
 				if (arg.StartsWith($"{argument}=")) {
 					value = arg.Replace($"{argument}=", string.Empty);
+					if ((value.StartsWith("'") && value.EndsWith("'")) || (value.StartsWith("\"") && value.EndsWith("\"")))
+					{
+						value = value.Substring(1, value.Length - 2);
+					}
 					_args.RemoveAt(i);
 					return true;
 				}

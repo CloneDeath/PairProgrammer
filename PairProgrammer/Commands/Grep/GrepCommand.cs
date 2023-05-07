@@ -14,51 +14,71 @@ public class GrepCommand : ICommand {
 	
 	public string Name => "grep";
 
-	public string Execute(string[] args, string input) {
-		var chain = new ArgumentChain(args);
-		var doCount = chain.SliceFlag("-c", "--count");
-		var recursive = chain.SliceFlag("-r", "--recursive", "-R", "--dereference-recursive");
-		var maxCount = chain.SliceInteger("-m", "--max-count");
-		var ignoreCase = chain.SliceFlag("-i", "--ignore-case");
-		var extendedRegExp = chain.SliceFlag("-E", "--extended-regexp");
-		var afterContext = chain.SliceInteger("-A", "--after-context") ?? 0;
-		var beforeContext = chain.SliceInteger("-B", "--before-context") ?? 0;
+	public string Execute(string[] args, string input)
+	{
+	    var chain = new ArgumentChain(args);
+	    var doCount = chain.SliceFlag("-c", "--count");
+	    var recursive = chain.SliceFlag("-r", "--recursive", "-R", "--dereference-recursive");
+	    var maxCount = chain.SliceInteger("-m", "--max-count");
+	    var ignoreCase = chain.SliceFlag("-i", "--ignore-case");
+	    var extendedRegExp = chain.SliceFlag("-E", "--extended-regexp");
+	    var afterContext = chain.SliceInteger("-A", "--after-context") ?? 0;
+	    var include = chain.SliceString("--include");
+	    var beforeContext = chain.SliceInteger("-B", "--before-context") ?? 0;
 
-		var remainingArgs = chain.Arguments.ToArray();
-		foreach (var remainingArg in remainingArgs) {
-			if (remainingArg.StartsWith("-")) throw new Exception($"Unrecognized argument {remainingArg}");
-		}
-		if (remainingArgs.Length == 0) return "Usage: grep [OPTION]... PATTERNS [FILE]...";
+	    var remainingArgs = chain.Arguments.ToArray();
+	    foreach (var remainingArg in remainingArgs)
+	    {
+	        if (remainingArg.StartsWith("-")) throw new Exception($"Unrecognized argument {remainingArg}");
+	    }
+	    if (remainingArgs.Length == 0) return "Usage: grep [OPTION]... PATTERNS [FILE]...";
 
-		var pattern = remainingArgs[0];
-		if (string.IsNullOrEmpty(pattern)) return "Invalid usage of 'grep' command. Please try again.";
-		if (!extendedRegExp) pattern = SwapRegexParenthesis(pattern);
-		var options = ignoreCase ? RegexOptions.IgnoreCase : RegexOptions.None;
-		var regex = new Regex(pattern, options);
+	    var pattern = remainingArgs[0];
+	    if (string.IsNullOrEmpty(pattern)) return "Invalid usage of 'grep' command. Please try again.";
+	    if (!extendedRegExp) pattern = SwapRegexParenthesis(pattern);
+	    var options = ignoreCase ? RegexOptions.IgnoreCase : RegexOptions.None;
+	    var regex = new Regex(pattern, options);
 
-		var scope = remainingArgs.Length > 1 ? remainingArgs[1] : null;
+	    var scope = remainingArgs.Length > 1 ? remainingArgs[1] : null;
 
-		var results = new GrepResultSetCollection(regex, maxCount, afterContext);
-		if (scope == null) {
-			var lines = input.Split(Environment.NewLine);
-			foreach (var line in lines) {
-				results.Push(line);
-			}
-		} else {
-			var files = GetFiles(scope, recursive);
-			foreach (var file in files) {
-				var localFile = _directoryViewer.GetLocalPath(file);
-				
-				var fileText = _directoryViewer.Access(file);
-				var fileLines = fileText.Split(Environment.NewLine);
-				foreach (var fileLine in fileLines) {
-					results.Push(localFile, fileLine);
-				}
-			}
-		}
+	    var results = new GrepResultSetCollection(regex, maxCount, afterContext);
+	    if (scope == null && !recursive)
+	    {
+	        var lines = input.Split(Environment.NewLine);
+	        foreach (var line in lines)
+	        {
+	            results.Push(line);
+	        }
+	    }
+	    else
+	    {
+	        var files = GetFiles(scope, recursive);
+	        if (!string.IsNullOrEmpty(include))
+	        {
+	            files = FilterFilesByIncludePattern(files, include);
+	        }
+	        foreach (var file in files)
+	        {
+	            var localFile = _directoryViewer.GetLocalPath(file);
 
-		return doCount ? results.GetCount() : results.GetOutput();
+	            var fileText = _directoryViewer.Access(file);
+	            var fileLines = fileText.Split(Environment.NewLine);
+	            foreach (var fileLine in fileLines)
+	            {
+	                results.Push(localFile, fileLine);
+	            }
+	        }
+	    }
+
+	    return doCount ? results.GetCount() : results.GetOutput();
 	}
+
+	public IEnumerable<string> FilterFilesByIncludePattern(IEnumerable<string> files, string includePattern)
+	{
+	    var includeRegex = GlobToRegex.Convert(includePattern);
+	    return files.Where(f => includeRegex.IsMatch(_directoryViewer.GetFileName(f)));
+	}
+
 
 	public IEnumerable<string> GetFiles(string? scope, bool recursive) {
 		if (scope == null) {
