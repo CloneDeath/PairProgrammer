@@ -24,4 +24,15 @@ public class ArgumentSplitter_Tests_Split : ArgumentSplitter_Tests {
 		args.Should().HaveCount(2);
 		args.Should().ContainInConsecutiveOrder("echo", "hello world");
 	}
+
+	[Test]
+	public void ItShouldProperlyIncludeQuotedTextAfterAnEqualSignAsOneArgument() {
+		const string bash = @"grep -r -A 5 -E '\bclass\b.*GrepCommand' --include='*.cs'";
+
+		var args = ArgumentSplitter.Split(bash);
+
+		args.Should().HaveCount(7);
+		args.Should()
+			.ContainInConsecutiveOrder("grep", "-r", "-A", "5", "-E", @"\bclass\b.*GrepCommand", "--include='*.cs'");
+	}
 }

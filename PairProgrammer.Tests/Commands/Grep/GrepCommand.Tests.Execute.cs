@@ -116,4 +116,18 @@ public class GrepCommand_Tests_Execute : GrepCommand_Tests {
 
 		output.Should().Be("./MyProgram/Program.cs:    public static async Task Main(string[] args)");
 	}
+
+	[Test]
+	public void ItIsAbleToFindADeeplyEmbeddedClassByName() {
+		var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData> {
+			{"MySite.sln", new MockFileData("dummy text")},
+			{"MyProgram/Commands/GrepCommand.cs", new MockFileData("public class GrepCommand : ICommand {")}
+		});
+		var command = new GrepCommand(new DirectoryViewer(".", fileSystem));
+		var args = ArgumentSplitter.Split(@"-r -A 5 -E '\bclass\b.*GrepCommand' --include='*.cs'");
+
+		var output = command.Execute(args, string.Empty);
+
+		output.Should().Be("./MyProgram/Commands/GrepCommand.cs:public class GrepCommand : ICommand {");
+	}
 }
