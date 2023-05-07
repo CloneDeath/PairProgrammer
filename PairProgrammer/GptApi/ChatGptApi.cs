@@ -1,9 +1,7 @@
 using System;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -24,7 +22,7 @@ public class ChatGptApi
 	{
 		var requestBody = new ChatGptRequest
 		{
-			Model = "gpt-3.5-turbo", 
+			Model = "gpt-4", 
 			Messages = messages,
 			MaxTokens = 1000
 		};
