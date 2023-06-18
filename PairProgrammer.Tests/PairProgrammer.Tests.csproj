@@ -27,6 +27,9 @@
       <Compile Update="FileSystemAccess.Tests.ReadFile.cs">
         <DependentUpon>FileSystemAccess.Tests.cs</DependentUpon>
       </Compile>
+      <Compile Update="FileSystemAccess.Tests.ListFiles.cs">
+        <DependentUpon>FileSystemAccess.Tests.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>
