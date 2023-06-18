@@ -31,7 +31,7 @@ public class ListInput {
 	public string Directory { get; set; } = "./";
 	
 	[JsonPropertyName("recursive")]
-	[Description("if true, returns child files & directories too")]
+	[Description("if true, returns child files & directories too. default is false.")]
 	public bool Recursive { get; set; }
 }
 

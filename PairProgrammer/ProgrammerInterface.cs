@@ -15,14 +15,25 @@ public interface IProgrammerInterface {
 }
 
 public class ProgrammerInterface : IProgrammerInterface {
+	private readonly ConsoleColor _defaultForeground;
+
+	public ProgrammerInterface() {
+		_defaultForeground = Console.ForegroundColor;
+	}
+	
 	public virtual string GetMessage() {
+		Console.ForegroundColor = ConsoleColor.White;
 		Console.Write("[User]: ");
+		Console.ForegroundColor = _defaultForeground;
 		return Console.ReadLine() ?? string.Empty;
 	}
 
 	public virtual void LogException(string responseText, Exception ex) {
-		Console.WriteLine($"[Rose]: `{responseText}`");
+		Output("Rose", ConsoleColor.Magenta, responseText);
+		
+		Console.ForegroundColor = ConsoleColor.Red;
 		Console.WriteLine($"An error occurred while executing the command: {ex}`.");
+		Console.ForegroundColor = _defaultForeground;
 	}
 
 	public virtual void LogTooManyRequestsError(int attempt, int retries, TimeSpan backoff) {
@@ -31,11 +42,16 @@ public class ProgrammerInterface : IProgrammerInterface {
 	}
 
 	public void LogAiMessage(string content) {
-		Console.WriteLine($"[Rose]: {content}");
+		Output("Rose", ConsoleColor.Magenta, content);
 	}
 
 	public void LogFunctionCall(FunctionCall functionCall) {
-		Console.WriteLine($"@Rose > {functionCall.Name}({functionCall.Arguments});");
+		Console.ForegroundColor = ConsoleColor.DarkMagenta;
+		Console.Write("@Rose > ");
+		Console.ForegroundColor = ConsoleColor.DarkGray;
+		var function = $"{functionCall.Name}({functionCall.Arguments});";
+		Console.WriteLine(function.Replace(Environment.NewLine, string.Empty));
+		Console.ForegroundColor = _defaultForeground;
 	}
 
 	public void LogFunctionResult(object result) {
@@ -43,13 +59,28 @@ public class ProgrammerInterface : IProgrammerInterface {
 			var lines = stringResult.Split(Environment.NewLine);
 			const int maxLines = 5;
 			var outputLines = string.Join(Environment.NewLine, lines.Take(maxLines));
+			Console.ForegroundColor = ConsoleColor.DarkGray;
 			Console.WriteLine(outputLines);
 			if (lines.Length > maxLines) {
 				var remaining = lines.Length - maxLines;
 				Console.WriteLine($"... {remaining} lines omitted");
 			}
+			Console.ForegroundColor = _defaultForeground;
 			return;
 		}
-		Console.WriteLine(JsonSerializer.Serialize(result));
+
+		var content = JsonSerializer.Serialize(result);
+		var outputContent = content.Substring(0, 100);
+		if (outputContent.Length < content.Length) outputContent += "...";
+		Console.ForegroundColor = ConsoleColor.DarkGray;
+		Console.WriteLine(outputContent);
+		Console.ForegroundColor = _defaultForeground;
+	}
+
+	private void Output(string source, ConsoleColor color, string text) {
+		Console.ForegroundColor = color;
+		Console.Write($"[{source}]: ");
+		Console.ForegroundColor = _defaultForeground;
+		Console.WriteLine(text);
 	}
 }
