@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -28,10 +29,14 @@ public class ChatGptApi
 			MaxTokens = 1000
 		};
 
-		var jsonContent = JsonConvert.SerializeObject(requestBody);
+		var jsonContent = JsonConvert.SerializeObject(requestBody, new JsonSerializerSettings());
 		var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
 		var response = await _httpClient.PostAsync(_apiUrl, content);
+		if (response.StatusCode == HttpStatusCode.BadRequest) {
+			var badResponse = await response.Content.ReadAsStringAsync();
+			throw new Exception("BadRequest: " + badResponse + ", Request: " + jsonContent);
+		}
 		response.EnsureSuccessStatusCode();
 
 		var responseBody = await response.Content.ReadAsStringAsync();

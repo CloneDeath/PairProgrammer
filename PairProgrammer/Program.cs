@@ -62,13 +62,13 @@ public static class Program
     
     public static async Task<ChatGptResponse> GetChatGptResponseAsync(ChatGptApi chatGptApi, 
                                                                IEnumerable<Message> messages,
-                                                               IEnumerable<ICommand> functions,
+                                                               IEnumerable<ICommand> commands,
                                                                IProgrammerInterface programmerInterface,
                                                                int retries,
                                                                int attempt = 0) {
         var messageArray = messages.ToArray();
-        var functionsArray = functions.ToArray();
-        var functionArray = GetFunctionsFromCommands(functionsArray);
+        var commandsArray = commands.ToArray();
+        var functionArray = GetFunctionsFromCommands(commandsArray);
         try {
             return await chatGptApi.GetChatGptResponseAsync(messageArray, functionArray);
         }
@@ -79,7 +79,7 @@ public static class Program
                 var backoff = TimeSpan.FromSeconds(10) * (attempt+1);
                 programmerInterface.LogTooManyRequestsError(attempt, retries, backoff);
                 Thread.Sleep(backoff);
-                return await GetChatGptResponseAsync(chatGptApi, messageArray, functionsArray, programmerInterface, retries, attempt + 1);
+                return await GetChatGptResponseAsync(chatGptApi, messageArray, commandsArray, programmerInterface, retries, attempt + 1);
             }
             throw;
         }
