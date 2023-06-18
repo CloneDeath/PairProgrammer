@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace PairProgrammer.GptApi;
@@ -20,11 +21,19 @@ public class FunctionCall {
 	[JsonPropertyName("arguments")] public string Arguments { get; set; } = string.Empty;
 }
 
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(LowerCaseEnumConverter))]
 public enum Role
 {
-	User,
-	System,
-	Assistant,
-	Function
+	[JsonPropertyName("user")] User,
+	[JsonPropertyName("system")] System,
+	[JsonPropertyName("assistant")] Assistant,
+	[JsonPropertyName("function")] Function
+}
+
+public class LowerCaseEnumConverter : JsonStringEnumConverter {
+	public LowerCaseEnumConverter() : base(new LowerCaseNamingPolicy()) { }
+}
+
+public class LowerCaseNamingPolicy : JsonNamingPolicy {
+	public override string ConvertName(string name) => name.ToLower();
 }
