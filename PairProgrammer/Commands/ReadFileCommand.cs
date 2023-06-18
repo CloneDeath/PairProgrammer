@@ -1,9 +1,8 @@
 using System;
 using System.ComponentModel;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
-namespace PairProgrammer.Functions; 
+namespace PairProgrammer.Commands; 
 
 public class ReadFileCommand : ICommand {
 	private readonly FileSystemAccess _fs;
@@ -16,9 +15,9 @@ public class ReadFileCommand : ICommand {
 		_fs = fs;
 	}
 
-	public object Execute(JObject input) {
-		var data = input.ToObject<ReadFileInput>() ?? throw new NullReferenceException();
-		return _fs.ReadFile(data.File);
+	public object Execute(object input) {
+		var args = (ReadFileInput)input;
+		return _fs.ReadFile(args.File);
 	}
 }
 

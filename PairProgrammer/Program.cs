@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Schema.Generation;
-using PairProgrammer.Functions;
+using PairProgrammer.Commands;
 using PairProgrammer.GptApi;
 
 namespace PairProgrammer;
@@ -30,29 +30,32 @@ public static class Program
 
         var fs = new FileSystemAccess(args[0], new FileSystem());
 
-        var functions = new[] {
-            new ReadFileCommand(fs)
-        };
+        var commands = new CommandFactory();
+        commands.Register(new ReadFileCommand(fs));
 
         while (true) {
-            var response = await GetChatGptResponseAsync(chatGptApi, messages, functions, programmerInterface, 10);
+            var response = await GetChatGptResponseAsync(chatGptApi, messages, commands.Commands, programmerInterface, 10);
             
             var responseMessage = response.Choices.First().Message;
             messages.Add(responseMessage);
-
-            if (responseMessage.FunctionCall == null) {
+            if (responseMessage.Content != null) {
                 programmerInterface.LogAiMessage(responseMessage.Content);
-                messages.Add(new Message {
-                    Role = Role.User,
-                    Content = programmerInterface.GetMessage()
-                });
             }
-            else {
-                var stringData = JsonConvert.SerializeObject(responseMessage.FunctionCall);
-                programmerInterface.LogAiMessage($"(FUNCTION): {stringData}");
+
+            if (responseMessage.FunctionCall != null) {
+                var functionCall = responseMessage.FunctionCall;
+                programmerInterface.LogFunctionCall(functionCall);
+                var result = commands.Execute(functionCall);
+                programmerInterface.LogFunctionResult(result);
                 messages.Add(new Message {
                     Role = Role.Function,
                     Name = responseMessage.FunctionCall.Name,
+                    Content = JsonConvert.SerializeObject(result)
+                });
+            }
+            else {
+                messages.Add(new Message {
+                    Role = Role.User,
                     Content = programmerInterface.GetMessage()
                 });
             }
