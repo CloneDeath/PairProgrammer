@@ -13,6 +13,7 @@ public interface IProgrammerInterface {
 	void LogFunctionCall(FunctionCall functionCall);
 	void LogFunctionResult(object result);
 	bool GetApprovalToWriteToFile(string file, string content);
+	void LogContentLengthExceeded();
 }
 
 public class ProgrammerInterface : IProgrammerInterface {
@@ -89,6 +90,10 @@ public class ProgrammerInterface : IProgrammerInterface {
 		var response = Console.ReadKey(false);
 		Console.WriteLine();
 		return response.Key is ConsoleKey.Y or ConsoleKey.Enter;
+	}
+
+	public void LogContentLengthExceeded() {
+		Output("System", ConsoleColor.Yellow, "Max content length exceeded, removing oldest history and retrying...");
 	}
 
 	private void Output(string source, ConsoleColor color, string text) {

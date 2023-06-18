@@ -9,6 +9,7 @@ public class ChatGptResponse {
 	[JsonPropertyName("created")] public long Created { get; set; }
 	[JsonPropertyName("choices")] public Choice[] Choices { get; set; } = Array.Empty<Choice>();
 	[JsonPropertyName("usage")] public Usage Usage { get; set; } = new();
+	[JsonPropertyName("error")] public ErrorResponse? Error { get; set; }
 }
 
 public class Choice

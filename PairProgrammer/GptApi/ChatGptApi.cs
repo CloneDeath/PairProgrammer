@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using PairProgrammer.GptApi.Exceptions;
 
 namespace PairProgrammer.GptApi;
 
@@ -35,7 +36,9 @@ public class ChatGptApi
 		var response = await _httpClient.PostAsync(_apiUrl, content);
 		if (response.StatusCode == HttpStatusCode.BadRequest) {
 			var badResponse = await response.Content.ReadAsStringAsync();
-			throw new Exception("BadRequest: " + badResponse + ", Request: " + jsonContent);
+			var errorBody = JsonSerializer.Deserialize<ChatGptResponse>(badResponse)?.Error 
+							?? throw new NullReferenceException();
+			throw new BadRequestException(errorBody, requestBody);
 		}
 		response.EnsureSuccessStatusCode();
 

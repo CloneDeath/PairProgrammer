@@ -11,6 +11,7 @@ using Json.Schema;
 using Json.Schema.Generation;
 using PairProgrammer.Commands;
 using PairProgrammer.GptApi;
+using PairProgrammer.GptApi.Exceptions;
 
 namespace PairProgrammer;
 
@@ -24,11 +25,10 @@ public static class Program
         var chatGptApi = new ChatGptApi(apiKey);
         IProgrammerInterface programmerInterface = new ProgrammerInterface();
 
-        var messages = new List<Message> {
-            new() { Role = Role.System, Content = GetSystemPrompt() },
-            new() { Role = Role.User, Content = programmerInterface.GetMessage() }
-        };
-
+        var messages = new MessageHistory();
+        messages.Add(Role.System, GetSystemPrompt());
+        messages.Add(Role.User, programmerInterface.GetMessage());
+        
         var fs = new FileSystemAccess(args[0], new FileSystem());
 
         var commands = new CommandFactory();
@@ -57,26 +57,32 @@ public static class Program
                 });
             }
             else {
-                messages.Add(new Message {
-                    Role = Role.User,
-                    Content = programmerInterface.GetMessage()
-                });
+                messages.Add(Role.User, programmerInterface.GetMessage());
             }
         }
     }
     
     
     public static async Task<ChatGptResponse> GetChatGptResponseAsync(ChatGptApi chatGptApi, 
-                                                               IEnumerable<Message> messages,
+                                                               MessageHistory messages,
                                                                IEnumerable<ICommand> commands,
                                                                IProgrammerInterface programmerInterface,
                                                                int retries,
                                                                int attempt = 0) {
-        var messageArray = messages.ToArray();
         var commandsArray = commands.ToArray();
         var functionArray = GetFunctionsFromCommands(commandsArray);
         try {
-            return await chatGptApi.GetChatGptResponseAsync(messageArray, functionArray);
+            return await chatGptApi.GetChatGptResponseAsync(messages.Messages.ToArray(), functionArray);
+        }
+        catch (BadRequestException ex) {
+            if (ex.Response.Code != "context_length_exceeded") throw;
+            programmerInterface.LogContentLengthExceeded();
+
+            messages.PopOldest();
+            if (messages.Length < 2) {
+                throw new Exception("Can not truncate history shorter than 2");
+            }
+            return await GetChatGptResponseAsync(chatGptApi, messages, commandsArray, programmerInterface, retries, attempt + 1);
         }
         catch (HttpRequestException ex) {
             if (attempt >= retries) throw;
@@ -85,7 +91,7 @@ public static class Program
                 var backoff = TimeSpan.FromSeconds(10) * (attempt+1);
                 programmerInterface.LogTooManyRequestsError(attempt, retries, backoff);
                 Thread.Sleep(backoff);
-                return await GetChatGptResponseAsync(chatGptApi, messageArray, commandsArray, programmerInterface, retries, attempt + 1);
+                return await GetChatGptResponseAsync(chatGptApi, messages, commandsArray, programmerInterface, retries, attempt + 1);
             }
             throw;
         }
