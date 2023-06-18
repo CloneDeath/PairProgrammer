@@ -34,6 +34,7 @@ public static class Program
         var commands = new CommandFactory();
         commands.Register(new ReadFileCommand(fs));
         commands.Register(new ListCommand(fs));
+        commands.Register(new WriteFileCommand(fs, programmerInterface));
 
         while (true) {
             var response = await GetChatGptResponseAsync(chatGptApi, messages, commands.Commands, programmerInterface, 10);

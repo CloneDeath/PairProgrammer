@@ -71,7 +71,7 @@ public class ProgrammerInterface : IProgrammerInterface {
 		}
 
 		var content = JsonSerializer.Serialize(result);
-		var outputContent = content.Substring(0, 100);
+		var outputContent = content.Length > 100 ? content.Substring(0, 100) : content;
 		if (outputContent.Length < content.Length) outputContent += "...";
 		Console.ForegroundColor = ConsoleColor.DarkGray;
 		Console.WriteLine(outputContent);
@@ -85,8 +85,9 @@ public class ProgrammerInterface : IProgrammerInterface {
 		Console.ForegroundColor = _defaultForeground;
 		LogFunctionResult(content);
 		Console.WriteLine();
-		Output("System", ConsoleColor.Yellow, "Do you approve? [Y/n]");
+		Console.Write("Do you approve? [Y/n] ");
 		var response = Console.ReadKey(false);
+		Console.WriteLine();
 		return response.Key is ConsoleKey.Y or ConsoleKey.Enter;
 	}
 
