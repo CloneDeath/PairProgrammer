@@ -19,7 +19,7 @@ public class FileSystemAccessTests_ReadFile : FileSystemAccessTests {
 		});
 		var directoryViewer = new FileSystemAccess("src", fileSystem);
 
-		var output = directoryViewer.ReadFile("/src/library.py");
+		var output = directoryViewer.ReadFile("library.py");
 
 		output.Should().Be("// do nothing");
 	}
@@ -35,5 +35,18 @@ public class FileSystemAccessTests_ReadFile : FileSystemAccessTests {
 		var output = directoryViewer.ReadFile("library.py");
 
 		output.Should().Be("// do nothing");
+	}
+
+	[Test]
+	public void ItShouldTreatAPathStartingWithASlashAsLocalToTheRoot() {
+		IFileSystem fileSystem = new MockFileSystem(new Dictionary<string, MockFileData> {
+			{"src/main.py", new MockFileData("hello world")},
+			{"src/library.py", new MockFileData("// do nothing")},
+		});
+		var directoryViewer = new FileSystemAccess("src/", fileSystem);
+
+		var output = directoryViewer.ReadFile("/main.py");
+
+		output.Should().Be("hello world");
 	}
 }

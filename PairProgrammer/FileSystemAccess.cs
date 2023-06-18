@@ -43,6 +43,7 @@ public class FileSystemAccess {
 	private string GetFullPath(string path) {
 		if (path == ".") return _root;
 		if (path == "/") return _root;
+		if (path.StartsWith("/")) path = "." + path;
 		
 		var fullPath = _fileSystem.Path.GetFullPath(_fileSystem.Path.Combine(_root, path));
 		if (!fullPath.StartsWith(_root)) {
