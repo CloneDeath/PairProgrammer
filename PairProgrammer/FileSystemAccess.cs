@@ -51,6 +51,12 @@ public class FileSystemAccess {
 		_fileSystem.File.WriteAllText(fullPath, content);
 	}
 
+	public void DeleteFile(string path) 
+	{
+		var fullPath = GetFullPath(path);
+		_fileSystem.File.Delete(fullPath);
+	}
+
 	private string GetFullPath(string path) {
 		if (path == ".") return _root;
 		if (path == "/") return _root;

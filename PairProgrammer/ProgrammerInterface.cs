@@ -13,6 +13,7 @@ public interface IProgrammerInterface {
 	void LogFunctionCall(FunctionCall functionCall);
 	void LogFunctionResult(object result);
 	bool GetApprovalToWriteToFile(string file, string content);
+	bool GetApprovalToDeleteFile(string file);
 	void LogContentLengthExceeded();
 }
 
@@ -85,6 +86,18 @@ public class ProgrammerInterface : IProgrammerInterface {
 		Console.WriteLine(file);
 		Console.ForegroundColor = _defaultForeground;
 		LogFunctionResult(content);
+		Console.WriteLine();
+		Console.Write("Do you approve? [Y/n] ");
+		var response = Console.ReadKey(false);
+		Console.WriteLine();
+		return response.Key is ConsoleKey.Y or ConsoleKey.Enter;
+	}
+	
+	public bool GetApprovalToDeleteFile(string file) {
+		Output("System", ConsoleColor.Yellow, "Rose would like to delete the following file: ");
+		Console.ForegroundColor = ConsoleColor.White;
+		Console.WriteLine(file);
+		Console.ForegroundColor = _defaultForeground;
 		Console.WriteLine();
 		Console.Write("Do you approve? [Y/n] ");
 		var response = Console.ReadKey(false);
