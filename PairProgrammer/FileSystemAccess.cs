@@ -40,6 +40,12 @@ public class FileSystemAccess {
 						  .Where(d => !IsHidden(d));
 	}
 
+	public void WriteFile(string path, string content) 
+	{
+		var fullPath = GetFullPath(path);
+		_fileSystem.File.WriteAllText(fullPath, content);
+	}
+
 	private string GetFullPath(string path) {
 		if (path == ".") return _root;
 		if (path == "/") return _root;

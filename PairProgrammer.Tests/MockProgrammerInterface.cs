@@ -10,4 +10,5 @@ public class MockProgrammerInterface : IProgrammerInterface {
 	public void LogAiMessage(string content) { }
 	public void LogFunctionCall(FunctionCall functionCall) { }
 	public void LogFunctionResult(object result) { }
+	public bool GetApprovalToWriteToFile(string file, string content) => true;
 }

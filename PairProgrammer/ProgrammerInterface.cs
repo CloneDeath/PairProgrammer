@@ -12,6 +12,7 @@ public interface IProgrammerInterface {
 	void LogAiMessage(string content);
 	void LogFunctionCall(FunctionCall functionCall);
 	void LogFunctionResult(object result);
+	bool GetApprovalToWriteToFile(string file, string content);
 }
 
 public class ProgrammerInterface : IProgrammerInterface {
@@ -75,6 +76,18 @@ public class ProgrammerInterface : IProgrammerInterface {
 		Console.ForegroundColor = ConsoleColor.DarkGray;
 		Console.WriteLine(outputContent);
 		Console.ForegroundColor = _defaultForeground;
+	}
+
+	public bool GetApprovalToWriteToFile(string file, string content) {
+		Output("System", ConsoleColor.Yellow, "Rose would like to write the following data: ");
+		Console.ForegroundColor = ConsoleColor.White;
+		Console.WriteLine(file);
+		Console.ForegroundColor = _defaultForeground;
+		LogFunctionResult(content);
+		Console.WriteLine();
+		Output("System", ConsoleColor.Yellow, "Do you approve? [Y/n]");
+		var response = Console.ReadKey(false);
+		return response.Key is ConsoleKey.Y or ConsoleKey.Enter;
 	}
 
 	private void Output(string source, ConsoleColor color, string text) {
