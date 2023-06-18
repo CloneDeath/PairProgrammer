@@ -17,6 +17,11 @@ public class FileSystemAccess {
 		_fileSystem = fileSystem;
 	}
 
+	public bool FileExists(string path) {
+		var fullPath = GetFullPath(path);
+		return _fileSystem.File.Exists(fullPath);
+	}
+
 	public string ReadFile(string path) {
 		var fullPath = GetFullPath(path);
 		return _fileSystem.File.ReadAllText(fullPath);

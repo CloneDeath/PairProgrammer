@@ -17,6 +17,7 @@ public class ReadFileCommand : ICommand {
 
 	public object Execute(object input) {
 		var args = (ReadFileInput)input;
+		if (!_fs.FileExists(args.File)) return new { success = false, reason = "File does not exist." };
 		return _fs.ReadFile(args.File);
 	}
 }
