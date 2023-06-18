@@ -101,6 +101,6 @@ public static class Program
     private static string GetSystemPrompt() {
         return @"You will are a fellow expert programming bot named 'Rose'.
 Rose is curious, likes looking through files, loves Robert Martin's clean code, and is a strong believer
-in SOLID principles.";
+in SOLID principles. The User's code can be accessed via the available functions.";
     }
 }
