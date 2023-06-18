@@ -115,4 +115,37 @@ public class FileSystemAccessTests_ListFolders : FileSystemAccessTests {
 		files.Should().Contain("/b");
 		files.Should().Contain("/b/right");
 	}
+
+	[Test]
+	public void ItShouldNotReturnHiddenDirectories() {
+		IFileSystem fileSystem = new MockFileSystem(new Dictionary<string, MockFileData> {
+			{"/src/a/.git/1.txt", new MockFileData("text")},
+			{"/src/a/left/2.txt", new MockFileData("text")},
+			{"/src/b/right/3.txt", new MockFileData("text")}
+		});
+		var directoryViewer = new FileSystemAccess("src/", fileSystem);
+
+		var files = directoryViewer.ListDirectories("/", true).ToArray();
+
+		files.Should().HaveCount(4);
+		files.Should().Contain("/a");
+		files.Should().Contain("/a/left");
+		files.Should().Contain("/b");
+		files.Should().Contain("/b/right");
+	}
+
+	[Test]
+	public void ItShouldNotReturnDirectoriesInsideOfHiddenDirectories() {
+		IFileSystem fileSystem = new MockFileSystem(new Dictionary<string, MockFileData> {
+			{"/src/a/.git/cool/1.txt", new MockFileData("text")},
+			{"/src/a/left/2.txt", new MockFileData("text")},
+		});
+		var directoryViewer = new FileSystemAccess("src/", fileSystem);
+
+		var files = directoryViewer.ListDirectories("/", true).ToArray();
+
+		files.Should().HaveCount(2);
+		files.Should().Contain("/a");
+		files.Should().Contain("/a/left");
+	}
 }

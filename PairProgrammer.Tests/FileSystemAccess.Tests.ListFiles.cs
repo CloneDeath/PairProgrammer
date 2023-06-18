@@ -112,4 +112,32 @@ public class FileSystemAccessTests_ListFiles : FileSystemAccessTests {
 		files.Should().Contain("/a/left/2.txt");
 		files.Should().Contain("/b/right/3.txt");
 	}
+
+	[Test]
+	public void ItShouldNotReturnHiddenFiles() {
+		IFileSystem fileSystem = new MockFileSystem(new Dictionary<string, MockFileData> {
+			{"/src/.gitignore", new MockFileData("text")},
+			{"/src/code.js", new MockFileData("text")},
+		});
+		var directoryViewer = new FileSystemAccess("src/", fileSystem);
+
+		var files = directoryViewer.ListFiles("/", false).ToArray();
+
+		files.Should().HaveCount(1);
+		files.Should().Contain("/code.js");
+	}
+
+	[Test]
+	public void ItShouldNotReturnFilesInHiddenFolders() {
+		IFileSystem fileSystem = new MockFileSystem(new Dictionary<string, MockFileData> {
+			{"/src/a/code.js", new MockFileData("text")},
+			{"/src/.git/obj.txt", new MockFileData("text")},
+		});
+		var directoryViewer = new FileSystemAccess("src/", fileSystem);
+
+		var files = directoryViewer.ListFiles("/", true).ToArray();
+
+		files.Should().HaveCount(1);
+		files.Should().Contain("/a/code.js");
+	}
 }

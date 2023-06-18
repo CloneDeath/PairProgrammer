@@ -16,7 +16,30 @@ public class FileSystemAccess {
 		_root = sanitizedRoot;
 		_fileSystem = fileSystem;
 	}
-	
+
+	public string ReadFile(string path) {
+		var fullPath = GetFullPath(path);
+		return _fileSystem.File.ReadAllText(fullPath);
+	}
+
+	public IEnumerable<string> ListFiles(string directory, bool recursive) {
+		var fullPath = GetFullPath(directory);
+		var files = recursive
+			? _fileSystem.Directory.EnumerateFiles(fullPath, "*", SearchOption.AllDirectories)
+			: _fileSystem.Directory.EnumerateFiles(fullPath);
+		return files.Select(GetLocalPath)
+					.Where(f => !IsHidden(f));
+	}
+
+	public IEnumerable<string> ListDirectories(string directory, bool recursive) {
+		var fullPath = GetFullPath(directory);
+		var directories = recursive
+							  ? _fileSystem.Directory.EnumerateDirectories(fullPath, "*", SearchOption.AllDirectories)
+							  : _fileSystem.Directory.EnumerateDirectories(fullPath);
+		return directories.Select(GetLocalPath)
+						  .Where(d => !IsHidden(d));
+	}
+
 	private string GetFullPath(string path) {
 		if (path == ".") return _root;
 		if (path == "/") return _root;
@@ -32,26 +55,8 @@ public class FileSystemAccess {
 	private string GetLocalPath(string path) {
 		return path.Replace(_root, "/");
 	}
-	
-	public string ReadFile(string path) {
-		var fullPath = GetFullPath(path);
-		return _fileSystem.File.ReadAllText(fullPath);
-	}
 
-	public IEnumerable<string> ListFiles(string directory, bool recursive) {
-		var fullPath = GetFullPath(directory);
-		var files = recursive
-			? _fileSystem.Directory.EnumerateFiles(fullPath, "*", SearchOption.AllDirectories)
-			: _fileSystem.Directory.EnumerateFiles(fullPath);
-		return files.Select(GetLocalPath);
-	}
-
-
-	public IEnumerable<string> ListDirectories(string directory, bool recursive) {
-		var fullPath = GetFullPath(directory);
-		var directories = recursive
-							  ? _fileSystem.Directory.EnumerateDirectories(fullPath, "*", SearchOption.AllDirectories)
-							  : _fileSystem.Directory.EnumerateDirectories(fullPath);
-		return directories.Select(GetLocalPath);
+	private bool IsHidden(string path) {
+		return path.Contains("/.");
 	}
 }
