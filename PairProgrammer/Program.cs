@@ -4,10 +4,11 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Schema.Generation;
+using Json.Schema;
+using Json.Schema.Generation;
 using PairProgrammer.Commands;
 using PairProgrammer.GptApi;
 
@@ -51,7 +52,7 @@ public static class Program
                 messages.Add(new Message {
                     Role = Role.Function,
                     Name = responseMessage.FunctionCall.Name,
-                    Content = JsonConvert.SerializeObject(result)
+                    Content = JsonSerializer.Serialize(result)
                 });
             }
             else {
@@ -90,11 +91,11 @@ public static class Program
     }
 
     private static GptFunction[] GetFunctionsFromCommands(IEnumerable<ICommand> functionsArray) {
-        var generator = new JSchemaGenerator();
+        var generator = new JsonSchemaBuilder();
         return functionsArray.Select(f => new GptFunction {
             Name = f.Name,
             Description = f.Description,
-            Parameters = generator.Generate(f.InputType)
+            Parameters = generator.FromType(f.InputType).Build()
         }).ToArray();
     }
 

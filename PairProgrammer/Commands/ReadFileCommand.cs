@@ -1,6 +1,6 @@
 using System;
-using System.ComponentModel;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+using Json.Schema.Generation;
 
 namespace PairProgrammer.Commands; 
 
@@ -22,7 +22,8 @@ public class ReadFileCommand : ICommand {
 }
 
 public class ReadFileInput {
-	[JsonProperty("file", Required = Required.Always)]
+	[JsonPropertyName("file")]
+	[Required]
 	[Description("file to read")]
 	public string File { get; set; } = string.Empty;
 }

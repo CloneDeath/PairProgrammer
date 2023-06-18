@@ -1,7 +1,7 @@
 using System;
-using System.ComponentModel;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+using Json.Schema.Generation;
 
 namespace PairProgrammer.Commands; 
 
@@ -25,16 +25,17 @@ public class ListCommand : ICommand {
 }
 
 public class ListInput {
-	[JsonProperty("directory", Required = Required.Always)]
+	[JsonPropertyName("directory")]
+	[Required]
 	[Description("the directory to list files & directories from")]
 	public string Directory { get; set; } = "./";
 	
-	[JsonProperty("recursive")]
+	[JsonPropertyName("recursive")]
 	[Description("if true, returns child files & directories too")]
 	public bool Recursive { get; set; }
 }
 
 public class ListOutput {
-	[JsonProperty("files")] public string[] Files { get; set; } = Array.Empty<string>();
-	[JsonProperty("directories")] public string[] Directories { get; set; } = Array.Empty<string>();
+	[JsonPropertyName("files")] public string[] Files { get; set; } = Array.Empty<string>();
+	[JsonPropertyName("directories")] public string[] Directories { get; set; } = Array.Empty<string>();
 }

@@ -1,25 +1,25 @@
 using System;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace PairProgrammer.GptApi;
 
 public class ChatGptResponse {
-	[JsonProperty("id")] public string Id { get; set; } = string.Empty;
-	[JsonProperty("object")] public string Object { get; set; } = string.Empty;
-	[JsonProperty("created")] public long Created { get; set; }
-	[JsonProperty("choices")] public Choice[] Choices { get; set; } = Array.Empty<Choice>();
-	[JsonProperty("usage")] public Usage Usage { get; set; } = new();
+	[JsonPropertyName("id")] public string Id { get; set; } = string.Empty;
+	[JsonPropertyName("object")] public string Object { get; set; } = string.Empty;
+	[JsonPropertyName("created")] public long Created { get; set; }
+	[JsonPropertyName("choices")] public Choice[] Choices { get; set; } = Array.Empty<Choice>();
+	[JsonPropertyName("usage")] public Usage Usage { get; set; } = new();
 }
 
 public class Choice
 {
-	[JsonProperty("index")] public int Index { get; set; }
-	[JsonProperty("message")] public Message Message { get; set; } = new();
-	[JsonProperty("finish_reason")] public string FinishReason { get; set; } = string.Empty;
+	[JsonPropertyName("index")] public int Index { get; set; }
+	[JsonPropertyName("message")] public Message Message { get; set; } = new();
+	[JsonPropertyName("finish_reason")] public string FinishReason { get; set; } = string.Empty;
 }
 
 public class Usage {
-	[JsonProperty("prompt_tokens")] public int PromptTokens { get; set; }
-	[JsonProperty("completion_tokens")] public int CompletionTokens { get; set; }
-	[JsonProperty("total_tokens")] public int TotalTokens { get; set; }
+	[JsonPropertyName("prompt_tokens")] public int PromptTokens { get; set; }
+	[JsonPropertyName("completion_tokens")] public int CompletionTokens { get; set; }
+	[JsonPropertyName("total_tokens")] public int TotalTokens { get; set; }
 }

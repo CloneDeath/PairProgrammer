@@ -3,8 +3,8 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace PairProgrammer.GptApi;
 
@@ -29,7 +29,7 @@ public class ChatGptApi
 			MaxTokens = 1000
 		};
 
-		var jsonContent = JsonConvert.SerializeObject(requestBody, new JsonSerializerSettings());
+		var jsonContent = JsonSerializer.Serialize(requestBody, new JsonSerializerOptions());
 		var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
 		var response = await _httpClient.PostAsync(_apiUrl, content);
@@ -40,7 +40,7 @@ public class ChatGptApi
 		response.EnsureSuccessStatusCode();
 
 		var responseBody = await response.Content.ReadAsStringAsync();
-		return JsonConvert.DeserializeObject<ChatGptResponse>(responseBody) 
+		return JsonSerializer.Deserialize<ChatGptResponse>(responseBody) 
 							 ?? throw new NullReferenceException();
 	}
 }

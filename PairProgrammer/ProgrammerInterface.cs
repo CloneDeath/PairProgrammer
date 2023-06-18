@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Text.Json;
 using PairProgrammer.GptApi;
 
 namespace PairProgrammer;
@@ -50,6 +50,6 @@ public class ProgrammerInterface : IProgrammerInterface {
 			}
 			return;
 		}
-		Console.WriteLine(JsonConvert.SerializeObject(result));
+		Console.WriteLine(JsonSerializer.Serialize(result));
 	}
 }

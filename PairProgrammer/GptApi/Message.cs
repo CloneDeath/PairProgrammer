@@ -1,22 +1,26 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace PairProgrammer.GptApi;
 
 public class Message {
-	[JsonProperty("role")] public Role Role { get; set; } = Role.User;
-	[JsonProperty("content")] public string? Content { get; set; } = string.Empty;
-	[JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)] public string? Name { get; set; }
-	[JsonProperty("function_call", NullValueHandling = NullValueHandling.Ignore)] public FunctionCall? FunctionCall { get; set; }
+	[JsonPropertyName("role")] public Role Role { get; set; } = Role.User;
+	[JsonPropertyName("content")] public string? Content { get; set; } = string.Empty;
+	
+	[JsonPropertyName("name")] 
+	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] 
+	public string? Name { get; set; }
+	
+	[JsonPropertyName("function_call")]
+	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] 
+	public FunctionCall? FunctionCall { get; set; }
 }
 
 public class FunctionCall {
-	[JsonProperty("name")] public string Name { get; set; } = string.Empty;
-	[JsonProperty("arguments")] public string Arguments { get; set; } = string.Empty;
+	[JsonPropertyName("name")] public string Name { get; set; } = string.Empty;
+	[JsonPropertyName("arguments")] public string Arguments { get; set; } = string.Empty;
 }
 
-[JsonConverter(typeof(StringEnumConverter), typeof(SnakeCaseNamingStrategy))]
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum Role
 {
 	User,
