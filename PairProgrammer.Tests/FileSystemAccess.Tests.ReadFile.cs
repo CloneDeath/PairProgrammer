@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace PairProgrammer.Tests; 
 
 [TestFixture]
-public class DirectoryViewerTests_Access : DirectoryViewerTests {
+public class FileSystemAccessTests_ReadFile : FileSystemAccessTests {
 	[Test]
 	public void CanAccessAFile() {
 		IFileSystem fileSystem = new MockFileSystem(new Dictionary<string, MockFileData> {
@@ -17,9 +17,9 @@ public class DirectoryViewerTests_Access : DirectoryViewerTests {
 ")},
 			{"/src/library.py", new MockFileData("// do nothing")},
 		});
-		var directoryViewer = new DirectoryViewer("src", fileSystem);
+		var directoryViewer = new FileSystemAccess("src", fileSystem);
 
-		var output = directoryViewer.Access("/src/library.py");
+		var output = directoryViewer.ReadFile("/src/library.py");
 
 		output.Should().Be("// do nothing");
 	}
@@ -30,9 +30,9 @@ public class DirectoryViewerTests_Access : DirectoryViewerTests {
 			{"src/main.py", new MockFileData("hello world")},
 			{"src/library.py", new MockFileData("// do nothing")},
 		});
-		var directoryViewer = new DirectoryViewer("src/", fileSystem);
+		var directoryViewer = new FileSystemAccess("src/", fileSystem);
 
-		var output = directoryViewer.Access("library.py");
+		var output = directoryViewer.ReadFile("library.py");
 
 		output.Should().Be("// do nothing");
 	}

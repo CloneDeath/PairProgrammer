@@ -18,12 +18,13 @@ public class ChatGptApi
 		_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
 	}
 
-	public async Task<ChatGptResponse> GetChatGptResponseAsync(Message[] messages)
+	public async Task<ChatGptResponse> GetChatGptResponseAsync(Message[] messages, GptFunction[]? functions = null)
 	{
 		var requestBody = new ChatGptRequest
 		{
-			Model = "gpt-4", 
+			Model = "gpt-4-0613", 
 			Messages = messages,
+			Functions = functions,
 			MaxTokens = 1000
 		};
 

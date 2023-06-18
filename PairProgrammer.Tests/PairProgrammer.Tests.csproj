@@ -9,84 +9,24 @@
 
     <ItemGroup>
         <PackageReference Include="FluentAssertions" Version="6.11.0" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
-        <PackageReference Include="NUnit" Version="3.13.2" />
-        <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
-        <PackageReference Include="coverlet.collector" Version="3.1.0" />
-        <PackageReference Include="TestableIO.System.IO.Abstractions.TestingHelpers" Version="19.2.16" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Compile Update="DirectoryViewerTests.List.cs">
-        <DependentUpon>DirectoryViewerTests.cs</DependentUpon>
-      </Compile>
-      <Compile Update="CommandExecutorTests.ExecuteBash.cs">
-        <DependentUpon>CommandExecutorTests.cs</DependentUpon>
-      </Compile>
-      <Compile Update="DirectoryViewerTests.ListFiles.cs">
-        <DependentUpon>DirectoryViewerTests.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Commands\CatCommandTests.GetFiles.cs">
-        <DependentUpon>CatCommandTests.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Commands\CatCommandTests.Execute.cs">
-        <DependentUpon>CatCommandTests.cs</DependentUpon>
-      </Compile>
-      <Compile Update="DirectoryViewerTests.Access.cs">
-        <DependentUpon>DirectoryViewerTests.cs</DependentUpon>
-      </Compile>
-      <Compile Update="ArgumentChain.Tests.SliceFlag.cs">
-        <DependentUpon>ArgumentChain.Tests.cs</DependentUpon>
-      </Compile>
-      <Compile Update="ArgumentChain.Tests.SliceInteger.cs">
-        <DependentUpon>ArgumentChain.Tests.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Commands\Grep\ResultSets\FixedSizeQueue.Tests.PushBack.cs">
-        <DependentUpon>FixedSizeQueue.Tests.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Commands\Grep\ResultSets\FixedSizeQueue.Tests.TryPushBack.cs">
-        <DependentUpon>FixedSizeQueue.Tests.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Commands\Grep\ResultSets\FixedSizeQueue.Tests.Any.cs">
-        <DependentUpon>FixedSizeQueue.Tests.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Commands\Grep\ResultSets\FixedSizeQueue.Tests.Clear.cs">
-        <DependentUpon>FixedSizeQueue.Tests.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Commands\Grep\GrepCommand.Tests.Execute.IgnoreCase.cs">
-        <DependentUpon>GrepCommand.Tests.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Commands\Grep\GrepCommand.Tests.Execute.ExtendedRegExp.cs">
-        <DependentUpon>GrepCommand.Tests.cs</DependentUpon>
-      </Compile>
-      <Compile Update="ArgumentChain.Tests.SliceString.cs">
-        <DependentUpon>ArgumentChain.Tests.cs</DependentUpon>
-      </Compile>
-      <Compile Update="ArgumentSplitter.Tests.Split.cs">
-        <DependentUpon>ArgumentSplitter.Tests.cs</DependentUpon>
-      </Compile>
-      <Compile Update="GlobToRegex.Tests.Convert.cs">
-        <DependentUpon>GlobToRegex.Tests.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Commands\Grep\GrepCommand.Tests.Execute.cs">
-        <DependentUpon>GrepCommand.Tests.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Commands\Grep\GrepCommand.Tests.ParenthesisSwapEvaluator.cs">
-        <DependentUpon>GrepCommand.Tests.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Commands\Grep\GrepCommand.Tests.SwapRegexParenthesis.cs">
-        <DependentUpon>GrepCommand.Tests.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Commands\Grep\GrepCommand.Tests.GetFiles.cs">
-        <DependentUpon>GrepCommand.Tests.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Commands\Grep\GrepCommand.Tests.Execute.Include.cs">
-        <DependentUpon>GrepCommand.Tests.cs</DependentUpon>
-      </Compile>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.2" />
+        <PackageReference Include="NUnit" Version="3.13.3" />
+        <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+        <PackageReference Include="coverlet.collector" Version="6.0.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="TestableIO.System.IO.Abstractions.TestingHelpers" Version="19.2.29" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\PairProgrammer\PairProgrammer.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="FileSystemAccess.Tests.ReadFile.cs">
+        <DependentUpon>FileSystemAccess.Tests.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

@@ -7,6 +7,8 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Schema.Generation;
+using PairProgrammer.Functions;
 using PairProgrammer.GptApi;
 
 namespace PairProgrammer;
@@ -19,53 +21,39 @@ public static class Program
                      ?? throw new InvalidOperationException("The environment variable 'OPENAI_API_KEY' is not set.");
 
         var chatGptApi = new ChatGptApi(apiKey);
-        var programmerInterface = new ProgrammerInterface();
-        var commandExecutor = new CommandExecutor(args[0], programmerInterface, new FileSystem());
-
-        var input = programmerInterface.GetMessage();
-        var prompt = GetPrompt(input);
+        IProgrammerInterface programmerInterface = new ProgrammerInterface();
 
         var messages = new List<Message> {
-            new() { Role = Role.System, Content = "You are an AI language model assisting in pair programming." },
-            new() { Role = Role.User, Content = prompt }
+            new() { Role = Role.System, Content = GetSystemPrompt() },
+            new() { Role = Role.User, Content = programmerInterface.GetMessage() }
+        };
+
+        var fs = new FileSystemAccess(args[0], new FileSystem());
+
+        var functions = new[] {
+            new ReadFileCommand(fs)
         };
 
         while (true) {
-            var response = await GetChatGptResponseAsync(chatGptApi, messages.ToArray(), programmerInterface, 10);
+            var response = await GetChatGptResponseAsync(chatGptApi, messages, functions, programmerInterface, 10);
             
             var responseMessage = response.Choices.First().Message;
             messages.Add(responseMessage);
-            
-            var responseText = responseMessage.Content.Trim();
 
-            try {
-                var command = JsonConvert.DeserializeObject<Command>(responseText)
-                              ?? throw new NullReferenceException();
-                var output = commandExecutor.ExecuteCommand(command);
+            if (responseMessage.FunctionCall == null) {
+                programmerInterface.LogAiMessage(responseMessage.Content);
                 messages.Add(new Message {
                     Role = Role.User,
-                    Content = $"[User] {output}"
+                    Content = programmerInterface.GetMessage()
                 });
             }
-            catch (CommandNotRecognizedException ex) {
-                programmerInterface.LogInvalidCommand(ex);
-                var exResponse = new {
-                    output = $"Command '{ex.CommandType}' not found." + Environment.NewLine
-                                                                      + "(remember to use the `chat` JSON to communicate with the user)"
-                };
+            else {
+                var stringData = JsonConvert.SerializeObject(responseMessage.FunctionCall);
+                programmerInterface.LogAiMessage($"(FUNCTION): {stringData}");
                 messages.Add(new Message {
-                    Role = Role.User,
-                    Content = JsonConvert.SerializeObject(exResponse)
-                });
-            }
-            catch (Exception ex) {
-                programmerInterface.LogException(responseText, ex);
-                var exResponse = new {
-                    user = programmerInterface.GetMessage()
-                };
-                messages.Add(new Message {
-                    Role = Role.User,
-                    Content = JsonConvert.SerializeObject(exResponse)
+                    Role = Role.Function,
+                    Name = responseMessage.FunctionCall.Name,
+                    Content = programmerInterface.GetMessage()
                 });
             }
         }
@@ -73,12 +61,16 @@ public static class Program
     
     
     public static async Task<ChatGptResponse> GetChatGptResponseAsync(ChatGptApi chatGptApi, 
-                                                               Message[] messages,
-                                                               ProgrammerInterface programmerInterface,
+                                                               IEnumerable<Message> messages,
+                                                               IEnumerable<ICommand> functions,
+                                                               IProgrammerInterface programmerInterface,
                                                                int retries,
                                                                int attempt = 0) {
+        var messageArray = messages.ToArray();
+        var functionsArray = functions.ToArray();
+        var functionArray = GetFunctionsFromCommands(functionsArray);
         try {
-            return await chatGptApi.GetChatGptResponseAsync(messages);
+            return await chatGptApi.GetChatGptResponseAsync(messageArray, functionArray);
         }
         catch (HttpRequestException ex) {
             if (attempt >= retries) throw;
@@ -87,40 +79,24 @@ public static class Program
                 var backoff = TimeSpan.FromSeconds(10) * (attempt+1);
                 programmerInterface.LogTooManyRequestsError(attempt, retries, backoff);
                 Thread.Sleep(backoff);
-                return await GetChatGptResponseAsync(chatGptApi, messages, programmerInterface, retries, attempt + 1);
+                return await GetChatGptResponseAsync(chatGptApi, messageArray, functionsArray, programmerInterface, retries, attempt + 1);
             }
             throw;
         }
     }
 
-    private static string GetPrompt(string input) {
-        return @"You will act as a fellow expert programming bot named 'Rose'
-Rose only responds with one of two JSON objects:
-1) {""chat"": ""Your message here""}
-2) {""bash"": ""<bash command here>"", ""comment"": ""comment explaining command here""}
+    private static GptFunction[] GetFunctionsFromCommands(IEnumerable<ICommand> functionsArray) {
+        var generator = new JSchemaGenerator();
+        return functionsArray.Select(f => new GptFunction {
+            Name = f.Name,
+            Description = f.Description,
+            Parameters = generator.Generate(f.InputType)
+        }).ToArray();
+    }
 
-Rose can use the bash json to run Linux CLI commands on the user's terminal, to get information about their project.
-Some commands Rose can run include: ls, cat, grep, wc
-
-An example conversation with Rose may be:
-User: {""user"": ""How are you today?""}
-Rose: {""chat"": ""I am good, how are you?""}
-User: {""user"": ""I'm doing fine. I was wondering, how many .cs files do I have in my project?""}
-Rose: {""bash"": ""ls -R | grep -c \"".cs$\"", ""comment"": ""Listing files recursively, and using grep to count the number of .cs files.""}
-User: {""output"", ""12""}
-Rose: {""chat"": ""You have 12 .cs files in your project.""}
-User: {""chat"": ""Does that include subdirectories?""}
-Rose: {""chat"": ""Yes""}
-
-Another example may be:
-User: {""user"": ""Can you summerize this project?""}
-Rose: {""bash"": ""cat README.md"", ""comment"": ""Outputting the contents of the README.md file, which should contain a summary of the project.""}
-User: {""output"": ""cat: README.md: No such file or directory""}
-Rose: {""chat"": ""I'm sorry, it seems that the README.md file doesn't exist in this project.\nIs there anything else I can help you with?""}
-
-Please stay in character as Rose at all times. Always respond as Rose would, using those 2 JSON responses.
-
-Now, please process the following user instructions, as Rose: "
-               + Environment.NewLine + input;
+    private static string GetSystemPrompt() {
+        return @"You will are a fellow expert programming bot named 'Rose'.
+Rose is curious, likes looking through files, loves Robert Martin's clean code, and is a strong believer
+in SOLID principles.";
     }
 }
